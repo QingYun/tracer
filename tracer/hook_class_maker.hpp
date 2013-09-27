@@ -15,10 +15,10 @@
 #define TRACER_HOOK_ARG_LIMIT 15
 #endif
 
-#define TRACER_HOOK_FAKE_FUNC_PARAMS(z, n, _)										\
+#define TRACER_HOOK_FAKE_FUNC_PARAMS(z, n, _)									\
 	BOOST_PP_CAT(P, n) BOOST_PP_CAT(p, n)
 
-#define TRACER_HOOK_FULL_NAME(scope, var)											\
+#define TRACER_HOOK_FULL_NAME(scope, var)										\
 	BOOST_PP_CAT(scope, BOOST_PP_CAT(::, var))
 
 //! `TRACER_HOOK_FAKE_FUNCS`的辅助宏, 用来生成有返回值和无返回值的重载
@@ -31,11 +31,11 @@
 		return [] (BOOST_PP_ENUM(n, TRACER_HOOK_FAKE_FUNC_PARAMS, _)) {			\
 			bool call_ori = true;												\
 			R ret;																\
-			::tracer::ForwardToFoldedParameters(::std::ref(before_signal),	\
+			::tracer::ForwardToFoldedParameters(::std::ref(before_signal),		\
 				call_ori BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));		\
 			if (call_ori)														\
 				ret = real(BOOST_PP_ENUM_PARAMS(n, p));							\
-			::tracer::ForwardToFoldedParameters(::std::ref(after_signal),	\
+			::tracer::ForwardToFoldedParameters(::std::ref(after_signal),		\
 				call_ori, ret BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));	\
 			return ret;															\
 		};																		\
@@ -47,18 +47,18 @@
 	R (cc *)(BOOST_PP_ENUM_PARAMS(n, P))>::type {								\
 		return [] (BOOST_PP_ENUM(n, TRACER_HOOK_FAKE_FUNC_PARAMS, _)) {			\
 			bool call_ori = true;												\
-			::tracer::ForwardToFoldedParameters(::std::ref(before_signal),	\
+			::tracer::ForwardToFoldedParameters(::std::ref(before_signal),		\
 				call_ori BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));		\
 			if (call_ori)														\
 				real(BOOST_PP_ENUM_PARAMS(n, p));								\
-			::tracer::ForwardToFoldedParameters(::std::ref(after_signal),	\
+			::tracer::ForwardToFoldedParameters(::std::ref(after_signal),		\
 				call_ori BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));		\
 		};																		\
 	}
 
 //! `TRACER_HOOK_FAKE_FUNCS`的辅助宏, 用来生成默认调用约定和`__stdcall`的重载
-#define TRACER_HOOK_FAKE_FUNCS_(z, n, _)											\
-	TRACER_HOOK_FAKE_FUNCS__(n, BOOST_PP_EMPTY())									\
+#define TRACER_HOOK_FAKE_FUNCS_(z, n, _)										\
+	TRACER_HOOK_FAKE_FUNCS__(n, BOOST_PP_EMPTY())								\
 	TRACER_HOOK_FAKE_FUNCS__(n, __stdcall)											
 
 /*!
@@ -69,11 +69,11 @@
 每个参数数量会有四份重载, 分别对应 默认调用约定 和`__stdcall`以及返回`void`的情况.
 每个重载都会返回一个和其签名一致的lambda转换出来的的函数指针.
 */
-#define TRACER_HOOK_FAKE_FUNCS														\
+#define TRACER_HOOK_FAKE_FUNCS													\
 	BOOST_PP_REPEAT(TRACER_HOOK_ARG_LIMIT, TRACER_HOOK_FAKE_FUNCS_, _)
 
 //! 生成Before signal相关的类型以及signal对象声明
-#define TRACER_HOOK_BEFORE_SIGNAL_DECL												\
+#define TRACER_HOOK_BEFORE_SIGNAL_DECL											\
 	typedef																		\
 		::tracer::FoldParameters<												\
 			::tracer::AllParamsToRef<											\
@@ -88,7 +88,7 @@
 	static BeforeSignal before_signal;
 
 //! 生成After signal相关的类型以及signal对象声明
-#define TRACER_HOOK_AFTER_SIGNAL_DECL												\
+#define TRACER_HOOK_AFTER_SIGNAL_DECL											\
 	typedef																		\
 		::tracer::FoldParameters<												\
 			::tracer::PrependParameter<											\
@@ -106,7 +106,7 @@
 	static AfterSignal after_signal;
 
 //! 生成信息类数据成员定义
-#define TRACER_HOOK_INFO_CLASS_DEF(_, class_name, func_name)						\
+#define TRACER_HOOK_INFO_CLASS_DEF(_, class_name, func_name)					\
 	class_name::BOOST_PP_CAT(func_name, Info)::OriSignature *					\
 		class_name::BOOST_PP_CAT(func_name, Info)::real = nullptr;				\
 	class_name::BOOST_PP_CAT(func_name, Info)::BeforeSignal						\
@@ -124,24 +124,24 @@
 //! 生成一个After回调类
 #define TRACER_HOOK_AFTER_CLASS(z, _, name)										\
 	struct name {																\
-		static ::tracer::Connection Call(								\
+		static ::tracer::Connection Call(										\
 		BOOST_PP_CAT(name, Info)::AfterCallback cb) {							\
 			return BOOST_PP_CAT(name, Info)::after_signal.connect(cb);			\
 		}																		\
-		static ::tracer::Connection CallOnce(							\
+		static ::tracer::Connection CallOnce(									\
 		BOOST_PP_CAT(name, Info)::AfterCallback cb) {							\
 			return BOOST_PP_CAT(name, Info)::after_signal.once(cb);				\
 		}																		\
 	};
 
 //! 生成一个Before回调类
-#define TRACER_HOOK_BEFORE_CLASS(z, _, name)										\
+#define TRACER_HOOK_BEFORE_CLASS(z, _, name)									\
 	struct name {																\
-		static ::tracer::Connection Call(								\
+		static ::tracer::Connection Call(										\
 		BOOST_PP_CAT(name, Info)::BeforeCallback cb) {							\
 			return BOOST_PP_CAT(name, Info)::before_signal.connect(cb);			\
 		}																		\
-		static ::tracer::Connection CallOnce(							\
+		static ::tracer::Connection CallOnce(									\
 		BOOST_PP_CAT(name, Info)::BeforeCallback cb) {							\
 			return BOOST_PP_CAT(name, Info)::before_signal.once(cb);			\
 		}																		\
@@ -158,22 +158,22 @@
 - 储存在原始函数调用前触发的回调的signal对象`before_signal`
 - 储存在原始函数调用后触发的回调的signal对象`after_signal`
 */
-#define TRACER_HOOK_NORMAL_INFO_CLASS_DECL(_, scope, name)							\
+#define TRACER_HOOK_NORMAL_INFO_CLASS_DECL(_, scope, name)						\
 	struct BOOST_PP_CAT(name, Info) {											\
-		typedef decltype(TRACER_HOOK_FULL_NAME(scope, name)) OriSignature;			\
-		typedef ::tracer::RemoveStdcall<OriSignature>::type Signature;		\
+		typedef decltype(TRACER_HOOK_FULL_NAME(scope, name)) OriSignature;		\
+		typedef ::tracer::RemoveStdcall<OriSignature>::type Signature;			\
 		static OriSignature *real;												\
-		TRACER_HOOK_FAKE_FUNCS														\
-		TRACER_HOOK_BEFORE_SIGNAL_DECL												\
-		TRACER_HOOK_AFTER_SIGNAL_DECL												\
+		TRACER_HOOK_FAKE_FUNCS													\
+		TRACER_HOOK_BEFORE_SIGNAL_DECL											\
+		TRACER_HOOK_AFTER_SIGNAL_DECL											\
 	};
 
 //! 生成针对普通函数的Hook实现
-#define TRACER_HOOK_NORMAL_HOOK_FUNC(_, scope, name)								\
+#define TRACER_HOOK_NORMAL_HOOK_FUNC(_, scope, name)							\
 	static LONG name() {														\
 		if (!BOOST_PP_CAT(name, Info)::real)									\
-			BOOST_PP_CAT(name, Info)::real = TRACER_HOOK_FULL_NAME(scope, name);	\
-		return ::tracer::HookManager::Instance().Install(					\
+			BOOST_PP_CAT(name, Info)::real = TRACER_HOOK_FULL_NAME(scope, name);\
+		return ::tracer::HookManager::Instance().Install(						\
 			&BOOST_PP_CAT(name, Info)::real,									\
 			BOOST_PP_CAT(name, Info)::fake(										\
 				reinterpret_cast<												\
@@ -186,10 +186,10 @@
 \param [in] scope 函数所在的命名空间, 比如`foo::bar`.
 \param [in] func_list 每个元素应为一个函数名
 */
-#define TRACER_HOOK_NORMAL_DECL(class_name, scope, func_list)						\
+#define TRACER_HOOK_NORMAL_DECL(class_name, scope, func_list)					\
 	class class_name {															\
 		BOOST_PP_SEQ_FOR_EACH(													\
-			TRACER_HOOK_NORMAL_INFO_CLASS_DECL, scope, func_list)					\
+			TRACER_HOOK_NORMAL_INFO_CLASS_DECL, scope, func_list)				\
 	public:																		\
 		struct Hook {															\
 			BOOST_PP_SEQ_FOR_EACH(												\
@@ -197,7 +197,7 @@
 		};																		\
 		struct Unhook {															\
 			BOOST_PP_SEQ_FOR_EACH(												\
-				TRACER_HOOK_UNHOOK_FUNC, _, func_list)								\
+				TRACER_HOOK_UNHOOK_FUNC, _, func_list)							\
 		};																		\
 		struct Before {															\
 			BOOST_PP_SEQ_FOR_EACH(												\
@@ -205,12 +205,12 @@
 		};																		\
 		struct After {															\
 			BOOST_PP_SEQ_FOR_EACH(												\
-				TRACER_HOOK_AFTER_CLASS, _, func_list)								\
+				TRACER_HOOK_AFTER_CLASS, _, func_list)							\
 		};																		\
 	};																			
 
 //! 生成Hook普通函数的封装类的定义
-#define TRACER_HOOK_NORMAL_DEF(class_name, func_list)								\
+#define TRACER_HOOK_NORMAL_DEF(class_name, func_list)							\
 	BOOST_PP_SEQ_FOR_EACH(TRACER_HOOK_INFO_CLASS_DEF, class_name, func_list)
 
 /*!
@@ -222,34 +222,34 @@
 	struct BOOST_PP_CAT(BOOST_PP_TUPLE_ELEM(2, 0, elem), Info) {				\
 		typedef ::tracer::COMToNormal<decltype(&TRACER_HOOK_FULL_NAME(scope,	\
 			BOOST_PP_TUPLE_ELEM(2, 0, elem)))>::type OriSignature;				\
-		typedef ::tracer::RemoveStdcall<OriSignature>::type Signature;		\
+		typedef ::tracer::RemoveStdcall<OriSignature>::type Signature;			\
 		static OriSignature *real;												\
 		static const ::std::size_t index = BOOST_PP_TUPLE_ELEM(2, 1, elem);		\
-		TRACER_HOOK_FAKE_FUNCS														\
-		TRACER_HOOK_BEFORE_SIGNAL_DECL												\
-		TRACER_HOOK_AFTER_SIGNAL_DECL												\
+		TRACER_HOOK_FAKE_FUNCS													\
+		TRACER_HOOK_BEFORE_SIGNAL_DECL											\
+		TRACER_HOOK_AFTER_SIGNAL_DECL											\
 	};
 
-#define TRACER_HOOK_COM_HOOK_FUNC_(name)											\
+#define TRACER_HOOK_COM_HOOK_FUNC_(name)										\
 	static LONG name() {														\
 		if (!BOOST_PP_CAT(name, Info)::real)									\
 			BOOST_PP_CAT(name, Info)::real = reinterpret_cast<decltype(			\
 				BOOST_PP_CAT(name, Info)::real)>(								\
 					vmt()[BOOST_PP_CAT(name, Info)::index]);					\
-		return ::tracer::HookManager::Instance().Install(					\
+		return ::tracer::HookManager::Instance().Install(						\
 			&BOOST_PP_CAT(name, Info)::real,									\
 			BOOST_PP_CAT(name, Info)::fake(										\
 				reinterpret_cast<												\
 					BOOST_PP_CAT(name, Info)::OriSignature*>(NULL)));			\
 	}
 //! 生成针对COM函数的Hook实现
-#define TRACER_HOOK_COM_HOOK_FUNC(z, _, elem)										\
+#define TRACER_HOOK_COM_HOOK_FUNC(z, _, elem)									\
 	TRACER_HOOK_COM_HOOK_FUNC_(BOOST_PP_TUPLE_ELEM(2, 0, elem))
 
 #define TRACER_HOOK_COM_UNHOOK_FUNC(z, _, elem)									\
 	TRACER_HOOK_UNHOOK_FUNC(z, _, BOOST_PP_TUPLE_ELEM(2, 0, elem))
 
-#define TRACER_HOOK_COM_BEFORE_CLASS(z, _, elem)									\
+#define TRACER_HOOK_COM_BEFORE_CLASS(z, _, elem)								\
 	TRACER_HOOK_BEFORE_CLASS(z, _, BOOST_PP_TUPLE_ELEM(2, 0, elem))
 
 #define TRACER_HOOK_COM_AFTER_CLASS(z, _, elem)									\
@@ -264,12 +264,12 @@ Hook COM函数的封装类会有一个额外的静态方法`vmt()`, 返回接口的虚表指针.
 \param [in] func_list 其中每个元素应该是一个有两个元素的tuple, 其中第一个元素是函数名, 
 第二个元素是其在虚表中的序号, 比如`((func1, 0))((func2, 1))((func3, 2))`
 */
-#define TRACER_HOOK_COM_DECL(class_name, scope, func_list)							\
+#define TRACER_HOOK_COM_DECL(class_name, scope, func_list)						\
 	class class_name {															\
 		static void **vmt_;														\
 		static scope *GetInterfacePointer_();									\
 		BOOST_PP_SEQ_FOR_EACH(													\
-			TRACER_HOOK_COM_INFO_CLASS_DECL, scope, func_list)						\
+			TRACER_HOOK_COM_INFO_CLASS_DECL, scope, func_list)					\
 	public:																		\
 		static void **vmt() {													\
 			if (!vmt_)															\
@@ -278,11 +278,11 @@ Hook COM函数的封装类会有一个额外的静态方法`vmt()`, 返回接口的虚表指针.
 		}																		\
 		struct Hook {															\
 			BOOST_PP_SEQ_FOR_EACH(												\
-				TRACER_HOOK_COM_HOOK_FUNC, _, func_list)							\
+				TRACER_HOOK_COM_HOOK_FUNC, _, func_list)						\
 		};																		\
 		struct Unhook {															\
 			BOOST_PP_SEQ_FOR_EACH(												\
-				TRACER_HOOK_COM_UNHOOK_FUNC, _, func_list)							\
+				TRACER_HOOK_COM_UNHOOK_FUNC, _, func_list)						\
 		};																		\
 		struct Before {															\
 			BOOST_PP_SEQ_FOR_EACH(												\
@@ -290,7 +290,7 @@ Hook COM函数的封装类会有一个额外的静态方法`vmt()`, 返回接口的虚表指针.
 		};																		\
 		struct After {															\
 			BOOST_PP_SEQ_FOR_EACH(												\
-				TRACER_HOOK_COM_AFTER_CLASS, _, func_list)							\
+				TRACER_HOOK_COM_AFTER_CLASS, _, func_list)						\
 		};																		\
 	};																			
 
@@ -306,8 +306,8 @@ Hook COM函数的封装类会有一个额外的静态方法`vmt()`, 返回接口的虚表指针.
 		return Direct3DCreate9(D3D_SDK_VERSION);
 	}
 */
-#define TRACER_HOOK_COM_DEF(class_name, func_list)									\
-	BOOST_PP_SEQ_FOR_EACH(TRACER_HOOK_COM_INFO_CLASS_DEF, class_name, func_list)	\
+#define TRACER_HOOK_COM_DEF(class_name, func_list)								\
+	BOOST_PP_SEQ_FOR_EACH(TRACER_HOOK_COM_INFO_CLASS_DEF, class_name, func_list)\
 	void **class_name::vmt_ = nullptr;											\
 	::std::result_of<decltype(&class_name::GetInterfacePointer_)()>::type		\
 	class_name::GetInterfacePointer_()
@@ -341,11 +341,11 @@ Hook COM函数的封装类会有一个额外的静态方法`vmt()`, 返回接口的虚表指针.
 \param [in] func_list 要Hook的函数列表, 是一个SEQ结构(`(a)(b)(c)`), 元素内容视种类而定
 \sa TRACER_HOOK_NORMAL_DECL, TRACER_HOOK_COM_DECL
 */
-#define TRACER_HOOK_CLASS_DECL(class_name, category, scope, func_list)				\
-	BOOST_PP_IIF(BOOST_PP_EQUAL(category, TRACER_HOOK_NORMAL),						\
-		TRACER_HOOK_NORMAL_DECL,													\
+#define TRACER_HOOK_CLASS_DECL(class_name, category, scope, func_list)			\
+	BOOST_PP_IIF(BOOST_PP_EQUAL(category, TRACER_HOOK_NORMAL),					\
+		TRACER_HOOK_NORMAL_DECL,												\
 		BOOST_PP_IIF(BOOST_PP_EQUAL(category, TRACER_HOOK_COM),					\
-			TRACER_HOOK_COM_DECL,													\
+			TRACER_HOOK_COM_DECL,												\
 			TRACER_HOOK_ERROR_DECL))(class_name, scope, func_list)
 
 //! 遇到未知的category时会展开这个宏
@@ -362,9 +362,9 @@ Hook COM函数的封装类会有一个额外的静态方法`vmt()`, 返回接口的虚表指针.
 \param [in] func_list 传给`TRACER_HOOK_CLASS_DECL`的函数列表
 \sa TRACER_HOOK_NORMAL_DEF, TRACER_HOOK_COM_DEF
 */
-#define TRACER_HOOK_CLASS_DEF(class_name, category, func_list)						\
-	BOOST_PP_IIF(BOOST_PP_EQUAL(category, TRACER_HOOK_NORMAL),						\
-		TRACER_HOOK_NORMAL_DEF,								\
+#define TRACER_HOOK_CLASS_DEF(class_name, category, func_list)					\
+	BOOST_PP_IIF(BOOST_PP_EQUAL(category, TRACER_HOOK_NORMAL),					\
+		TRACER_HOOK_NORMAL_DEF,													\
 		BOOST_PP_IIF(BOOST_PP_EQUAL(category, TRACER_HOOK_COM),					\
-			TRACER_HOOK_COM_DEF,							\
+			TRACER_HOOK_COM_DEF,												\
 			TRACER_HOOK_ERROR_DEF))(class_name, func_list)
