@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tracer", "tracer\tracer.vcxproj", "{DA952C05-1E1C-4CDE-A35A-C7CB6B171B2B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tracer_test", "tracer_test\tracer_test.vcxproj", "{233597F6-A348-4844-B3F4-904D0099CA44}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DA952C05-1E1C-4CDE-A35A-C7CB6B171B2B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DA952C05-1E1C-4CDE-A35A-C7CB6B171B2B}.Debug|Win32.Build.0 = Debug|Win32
+		{DA952C05-1E1C-4CDE-A35A-C7CB6B171B2B}.Release|Win32.ActiveCfg = Release|Win32
+		{DA952C05-1E1C-4CDE-A35A-C7CB6B171B2B}.Release|Win32.Build.0 = Release|Win32
+		{233597F6-A348-4844-B3F4-904D0099CA44}.Debug|Win32.ActiveCfg = Debug|Win32
+		{233597F6-A348-4844-B3F4-904D0099CA44}.Debug|Win32.Build.0 = Debug|Win32
+		{233597F6-A348-4844-B3F4-904D0099CA44}.Release|Win32.ActiveCfg = Release|Win32
+		{233597F6-A348-4844-B3F4-904D0099CA44}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
