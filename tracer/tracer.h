@@ -1,2 +1,3 @@
 #pragma once
-#include "hook_class_maker.hpp"
+#include "trace_normal_func.hpp"
+#include "trace_member_func.hpp"
