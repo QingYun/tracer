@@ -64,6 +64,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dbg_helper.cpp" />
     <ClCompile Include="detours\creatwth.cpp" />
     <ClCompile Include="detours\detours.cpp" />
     <ClCompile Include="detours\disasm.cpp" />
@@ -82,16 +83,21 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dbg_helper.h" />
     <ClInclude Include="detours\detours.h" />
     <ClInclude Include="detours\detver.h" />
     <ClInclude Include="detours\syelog.h" />
+    <ClInclude Include="fake_func_keeper.hpp" />
     <ClInclude Include="function_type.hpp" />
-    <ClInclude Include="hook_class_maker.hpp" />
     <ClInclude Include="hook_impl.h" />
     <ClInclude Include="hook_manager.h" />
+    <ClInclude Include="real_func_keeper.hpp" />
     <ClInclude Include="signal.hpp" />
+    <ClInclude Include="signal_keeper.hpp" />
     <ClInclude Include="singleton.hpp" />
     <ClInclude Include="tracer.h" />
+    <ClInclude Include="trace_member_func.hpp" />
+    <ClInclude Include="trace_normal_func.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -48,6 +48,9 @@
     <ClCompile Include="hook_manager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="dbg_helper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="detours\detours.h">
@@ -68,9 +71,6 @@
     <ClInclude Include="hook_impl.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="hook_class_maker.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="hook_manager.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -78,6 +78,24 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="tracer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg_helper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="signal_keeper.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="real_func_keeper.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="fake_func_keeper.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="trace_normal_func.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="trace_member_func.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

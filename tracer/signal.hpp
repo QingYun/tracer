@@ -22,6 +22,9 @@
 
 namespace tracer {
 
+template<typename T>
+struct DiscardParams;
+
 namespace {
 #define BOOST_PP_ITERATION_LIMITS (0, BOOST_SIGNALS2_MAX_ARGS)
 #define BOOST_PP_FILENAME_1 "signal.cpp"
@@ -68,6 +71,9 @@ public:
 	{
 		return once_class_t().operator()<boost::signals2::connection>
 			(this, group, in_slot, at);
+	}
+	Connection connect_without_params(std::function<void(void)> cb) {
+		return connect(DiscardParams<Signature>(cb));
 	}
 };
 

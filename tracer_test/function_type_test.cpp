@@ -14,11 +14,11 @@ struct A {
 };
 
 TEST(FunctionTypeTest, COMToNormalTest) {
-	StaticAssertTypeEq<HRESULT __stdcall(A*), COMToNormal<decltype(&A::F0)>::type>();
-	StaticAssertTypeEq<HRESULT __stdcall(A*, int), COMToNormal<decltype(&A::F1)>::type>();
+	StaticAssertTypeEq<HRESULT __stdcall(A*), MemberToNormal<decltype(&A::F0)>::type>();
+	StaticAssertTypeEq<HRESULT __stdcall(A*, int), MemberToNormal<decltype(&A::F1)>::type>();
 	StaticAssertTypeEq<HRESULT __stdcall(A*, char, short, int, long, long long, 
 		unsigned char, unsigned short, unsigned int, unsigned long, unsigned long long), 
-		COMToNormal<decltype(&A::F2)>::type>();
+		MemberToNormal<decltype(&A::F2)>::type>();
 }
 
 void WINAPI F1();

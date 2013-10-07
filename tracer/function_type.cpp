@@ -1,8 +1,13 @@
 #define I BOOST_PP_ITERATION()
 
-template<typename C BOOST_PP_COMMA_IF(I) BOOST_PP_ENUM_PARAMS(I, typename P)>
-struct COMToNormal<HRESULT(__stdcall C::*)(BOOST_PP_ENUM_PARAMS(I, P))> {
-	typedef HRESULT __stdcall type(C* BOOST_PP_COMMA_IF(I) BOOST_PP_ENUM_PARAMS(I, P));
+template<typename R, typename C BOOST_PP_COMMA_IF(I) BOOST_PP_ENUM_PARAMS(I, typename P)>
+struct MemberToNormal<R (C::*)(BOOST_PP_ENUM_PARAMS(I, P))> {
+	typedef R type(C* BOOST_PP_COMMA_IF(I) BOOST_PP_ENUM_PARAMS(I, P));
+};
+
+template<typename R, typename C BOOST_PP_COMMA_IF(I) BOOST_PP_ENUM_PARAMS(I, typename P)>
+struct MemberToNormal<R (__stdcall C::*)(BOOST_PP_ENUM_PARAMS(I, P))> {
+	typedef R __stdcall type(C* BOOST_PP_COMMA_IF(I) BOOST_PP_ENUM_PARAMS(I, P));
 };
 
 template<typename Adding, typename R 
@@ -125,7 +130,7 @@ template<typename F BOOST_PP_COMMA_IF(I) BOOST_PP_ENUM_PARAMS(I, typename P)>
 auto ForwardToFoldedParameters(F func, BOOST_PP_ENUM(I, PARAM, _)) ->
 	typename ::std::result_of<F(BOOST_PP_ENUM_PARAMS(6, P), ::std::tuple<
 	BOOST_PP_ENUM(BOOST_PP_SUB(I, 6), M, P)>)>::type {
-		return func(BOOST_PP_ENUM_PARAMS(6, p), ::std::tie(
+		return func(BOOST_PP_ENUM_PARAMS(6, p), ::std::forward_as_tuple(
 			BOOST_PP_ENUM(BOOST_PP_SUB(I, 6), M, p)));
 }
 
@@ -133,3 +138,5 @@ auto ForwardToFoldedParameters(F func, BOOST_PP_ENUM(I, PARAM, _)) ->
 #undef M
 
 #endif
+
+#undef I

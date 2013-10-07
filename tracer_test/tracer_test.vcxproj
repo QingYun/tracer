@@ -46,7 +46,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>D:\dx9\Include;../google;../tracer;D:\boost\boost_1_54_0\boost_1_54_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_VARIADIC_MAX=10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_VARIADIC_MAX=10;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -66,13 +66,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dbg_helper_test.cpp" />
     <ClCompile Include="function_type_test.cpp" />
     <ClCompile Include="gtest-all.cc" />
-    <ClCompile Include="hook_class_maker_test.cpp">
-      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
-    </ClCompile>
     <ClCompile Include="hook_manager_test.cpp" />
+    <ClCompile Include="manual_code_test.cpp" />
     <ClCompile Include="src\gtest_main.cc" />
+    <ClCompile Include="trace_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\tracer\tracer.vcxproj">

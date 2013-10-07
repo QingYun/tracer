@@ -5,13 +5,13 @@
 namespace tracer {
 
 /*!
-\brief 根据COM函数指针生成兼容的普通函数签名.
+\brief 根据成员函数指针生成对应的普通函数签名.
 
 比如对于`HRESULT (__stdcall C::*)(int, double)`, 
 则会生成`HRESULT __stdcall type(C*, int, double)`.
 */
 template<typename T>
-struct COMToNormal;
+struct MemberToNormal;
 
 /*!
 \brief 在参数列表头部插入一个参数
