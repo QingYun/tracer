@@ -6,7 +6,7 @@ A simple hook library for testing and debuging
 Usage
 ---
 
-首先, 包含头文件`tracer/tracer.h`.
+首先, 包含头文件`tracer/tracer.h`, 然后配置一下Boost路径.
 
 ###Tracers
 
@@ -43,8 +43,8 @@ Usage
 
 除了`boost.signals2`原有的接口, `tracer::Signal`还提供了两个新的方法:
 
-- **once(cb)** : 类似于`connect`, 但是这个回调会在被触发一次之后自动断开连接
-- **connect_without_params(cb)** : 类似于`connect`, 但是回调的签名应该是`void()`的.
+- `once(cb)` : 类似于`connect`, 但是这个回调会在被触发一次之后自动断开连接
+- `connect_without_params(cb)` : 类似于`connect`, 但是回调的签名应该是`void()`的.
 
 ###Recorders
 
@@ -57,5 +57,13 @@ Usage
 可以使用`CallCountRecorder<decltype(tracer)> recorder(tracer)` 或者 `auto recorder = RecordCallCount(tracer)`创建, 
 它有两个公开方法:
 
-- **bool HasBeenCalled()** : 返回一个`bool`值表示原始函数是否被调用过.
-- **std::size_t CallCount()** : 返回原始函数被调用的次数.
+- `bool HasBeenCalled()` : 返回一个`bool`值表示原始函数是否被调用过.
+- `std::size_t CallCount()` : 返回原始函数被调用的次数.
+ 
+####ArgRecorder
+
+记录传递给原始函数的所有参数
+
+可以使用`ArgRecorder<decltype(tracer)> recorder(tracer)` 或者 `auto recorder = RecordArgs(tracer)`创建, 它有一个公开方法:
+
+- `nth-param-type Arg<I>(n)` : 返回开始记录后第`n`次调用时的第`I`个参数. 
