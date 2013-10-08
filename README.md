@@ -1,7 +1,12 @@
-tracer
+Tracer
 ======
 
 A simple hook library for testing and debuging
+
+Introduction
+---
+
+Tracer可以让你在不修改代码的前提下, 在指定函数调用前后以回调的形式插入代码.
 
 Usage
 ---
