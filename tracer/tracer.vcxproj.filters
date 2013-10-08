@@ -104,5 +104,8 @@
     <ClInclude Include="call_count_recorder.hpp">
       <Filter>recorders</Filter>
     </ClInclude>
+    <ClInclude Include="arg_recorder.hpp">
+      <Filter>recorders</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
