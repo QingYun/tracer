@@ -16,6 +16,9 @@
     <Filter Include="detours">
       <UniqueIdentifier>{49d1b2b7-3bb0-460d-9219-a2312b8a8d41}</UniqueIdentifier>
     </Filter>
+    <Filter Include="recorders">
+      <UniqueIdentifier>{da6a4689-63ec-429c-9567-78ddd6c8817a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="detours\creatwth.cpp">
@@ -97,6 +100,9 @@
     </ClInclude>
     <ClInclude Include="trace_member_func.hpp">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="call_count_recorder.hpp">
+      <Filter>recorders</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

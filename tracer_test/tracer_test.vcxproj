@@ -71,6 +71,7 @@
     <ClCompile Include="gtest-all.cc" />
     <ClCompile Include="hook_manager_test.cpp" />
     <ClCompile Include="manual_code_test.cpp" />
+    <ClCompile Include="recorder_test.cpp" />
     <ClCompile Include="src\gtest_main.cc" />
     <ClCompile Include="trace_test.cpp" />
   </ItemGroup>
