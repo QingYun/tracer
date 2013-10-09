@@ -72,3 +72,12 @@ Usage
 可以使用`ArgRecorder<decltype(tracer)> recorder(tracer)` 或者 `auto recorder = RecordArgs(tracer)`创建, 它有一个公开方法:
 
 - `nth-param-type Arg<I>(n)` : 返回开始记录后第`n`次调用时的第`I`个参数. 
+
+####RetValRecorder
+
+记录函数的返回值
+
+可以使用`RetValRecorder<decltype(tracer)> recorder(tracer)` 或者 `auto recorder = RecordRetVal(tracer)`创建, 
+它有一个公开方法:
+
+- `ret-val-type RetVal(n)` : 返回开始记录后第`n`次调用时的返回值
