@@ -3,6 +3,7 @@
 #include "trace_member_func.hpp"
 #include "call_count_recorder.hpp"
 #include "arg_recorder.hpp"
+#include "ret_val_recorder.hpp"
 
 namespace {
 
@@ -13,6 +14,12 @@ int F1(int a) {
 void F2(int a) {
 	if (a != 0)
 		F2(a - 1);
+}
+
+int Fac(int n) {
+	if (n == 0)
+		return 1;
+	return n * Fac(n - 1);
 }
 
 }
@@ -35,4 +42,15 @@ TEST(RecorderTest, ArgRecorderTest) {
 	F2(a);
 	for (int i = a; i >= 0; i--) 
 		EXPECT_EQ(5 - i, f2a.Arg<0>(i));
+}
+
+
+
+TEST(RecorderTest, RetValRecorderTest) {
+	TRACER_TRACE_NORMAL_FUNC(Fac) fac;
+	auto facr = tracer::RecordRetVal(fac);
+	Fac(3);
+	int result[] = {1, 1, 2, 6};
+	for (int i = 0; i < 4; ++i) 
+		EXPECT_EQ(result[i], facr.RetVal(i));
 }
