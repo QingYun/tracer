@@ -94,6 +94,7 @@
     <ClInclude Include="hook_impl.h" />
     <ClInclude Include="hook_manager.h" />
     <ClInclude Include="real_func_keeper.hpp" />
+    <ClInclude Include="ret_val_recorder.hpp" />
     <ClInclude Include="signal.hpp" />
     <ClInclude Include="signal_keeper.hpp" />
     <ClInclude Include="singleton.hpp" />

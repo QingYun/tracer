@@ -1,4 +1,5 @@
 #pragma once
+#include "signal.hpp"
 
 namespace tracer {
 	
@@ -11,7 +12,7 @@ class CallCountRecorder {
 public:
 	CallCountRecorder(T &tracer) :
 		count_(0) {
-		conn_ = tracer.Before().connect_without_params([this] () mutable {
+		conn_ = tracer.Before().connect_without_params([this] () {
 			count_++;
 		});
 	}
@@ -22,8 +23,8 @@ public:
 };
 
 template<typename T>
-CallCountRecorder<T> RecordCallCount(T&& tracer) {
-	return CallCountRecorder<T>(std::forward<T>(tracer));
+CallCountRecorder<T> RecordCallCount(T& tracer) {
+	return CallCountRecorder<T>(tracer);
 }
 
 }	// namespace tracer

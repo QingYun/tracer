@@ -107,5 +107,8 @@
     <ClInclude Include="arg_recorder.hpp">
       <Filter>recorders</Filter>
     </ClInclude>
+    <ClInclude Include="ret_val_recorder.hpp">
+      <Filter>recorders</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
