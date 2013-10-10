@@ -16,7 +16,8 @@
 	typename std::remove_reference<p>::type
 
 #define CONST_REF(t)																	\
-	typename std::add_const<typename std::add_lvalue_reference<typename t>::type>::type
+	typename std::add_lvalue_reference<typename std::add_const<							\
+			typename std::remove_reference<t>::type>::type>::type
 
 #define GEN_IMPL_(n)																	\
 	template<typename T BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, typename P)>							\
@@ -33,7 +34,7 @@
 		~RetValRecorderImpl() {															\
 			conn_.disconnect();															\
 		}																				\
-		CONST_REF(P1) RetVal(std::size_t i) {											\
+		CONST_REF(P1) RetVal(std::size_t i) const {							\
 			return ret_vals_.at(i);														\
 		}																				\
 	};

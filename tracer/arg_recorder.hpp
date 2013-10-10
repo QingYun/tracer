@@ -15,7 +15,8 @@
 	typename std::remove_reference<BOOST_PP_CAT(P, n)>::type
 
 #define CONST_REF(t)																	\
-	typename std::add_const<typename std::add_lvalue_reference<typename t>::type>::type
+	typename std::add_lvalue_reference<typename std::add_const<							\
+			typename std::remove_reference<t>::type>::type>::type
 
 #define GEN_IMPL(z, n, _)																\
 	template<typename T BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, typename P)>		\
@@ -34,7 +35,7 @@
 			conn_.disconnect();															\
 		}																				\
 		template<std::size_t I>															\
-		CONST_REF(decltype(std::get<I>(Tuple()))) Arg(std::size_t i) {					\
+		CONST_REF(decltype(std::get<I>(Tuple()))) Arg(std::size_t i) const {			\
 			return std::get<I>(args_.at(i));											\
 		}																				\
 	};
