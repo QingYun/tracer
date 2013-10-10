@@ -128,8 +128,13 @@ tracer::StackWalkIterator DbgHelper::StackWalk( CONTEXT *context /*= nullptr*/ )
 
 std::string DbgHelper::GetSymbolName( DWORD64 addr ) {
 	std::lock_guard<std::mutex> l(lock_);
-	if (!SymFromAddr(GetCurrentProcess(), addr, NULL, sym_buffer_))
-		throw std::runtime_error("SymFromAddr failed " + GetLastErrMsg());
+	while (true) {
+		if (!SymFromAddr(GetCurrentProcess(), addr, NULL, sym_buffer_))
+			throw std::runtime_error("SymFromAddr failed " + GetLastErrMsg());
+		if (sym_buffer_->NameLen < sym_buffer_->MaxNameLen)
+			break;
+		AllocSymBuffer_(sym_buffer_->MaxNameLen * 2);
+	}
 	return sym_buffer_->Name;
 }
 
@@ -137,8 +142,17 @@ std::string DbgHelper::UnDecorateSymbolName( const std::string symbol_name, DWOR
 	std::lock_guard<std::mutex> l(lock_);
 	std::size_t size = 1024;
 	std::unique_ptr<char> und_name(new char[size]);
-	if (!::UnDecorateSymbolName(symbol_name.c_str(), und_name.get(), size, flag))
-		throw std::runtime_error("UnDecorateSymbolName failed " + GetLastErrMsg());
+	DWORD need_size;
+	while (true) {
+		need_size = ::UnDecorateSymbolName(symbol_name.c_str(), und_name.get(), size, flag);
+		if (need_size == 0)
+			throw std::runtime_error("UnDecorateSymbolName failed " + GetLastErrMsg());
+		else if (need_size >= size) {
+			size = need_size + 1;
+			und_name.reset(new char[size]);
+		} else 
+			break;
+	}
 	std::string ret(und_name.get());
 	return ret;
 }
