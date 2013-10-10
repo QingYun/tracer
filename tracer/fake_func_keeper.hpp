@@ -12,7 +12,8 @@
 
 #define GEN_FAKE_FUNC(n, cc)														\
 	template<typename R BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, typename P)>	\
-	struct Fake<R (cc *)(BOOST_PP_ENUM_PARAMS(n, P))> {								\
+	struct Fake<R (cc *)(BOOST_PP_ENUM_PARAMS(n, P)),								\
+		typename std::enable_if<!std::is_void<R>::value>::type> {					\
 		static R cc Func(BOOST_PP_ENUM(n, TYPE_AND_PARAM, _)) {						\
 			bool call_ori = true;													\
 			R ret;																	\
@@ -29,8 +30,9 @@
 	};																				
 
 #define GEN_FAKE_VOID_FUNC(n, cc)													\
-	template<BOOST_PP_ENUM_PARAMS(n, typename P)>									\
-	struct Fake<void (cc *)(BOOST_PP_ENUM_PARAMS(n, P))> {							\
+	template<typename R BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, typename P)>	\
+	struct Fake<R (cc *)(BOOST_PP_ENUM_PARAMS(n, P)),								\
+		typename std::enable_if<std::is_void<R>::value>::type> {					\
 		static void cc Func(BOOST_PP_ENUM(n, TYPE_AND_PARAM, _)) {					\
 			bool call_ori = true;													\
 			::tracer::ForwardToFoldedParameters(									\
@@ -47,7 +49,8 @@
 #define GEN_FAKE_MEMBER(n, cc)														\
 	template<typename R, typename C													\
 		BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, typename P)>					\
-	struct Fake<R (cc C::*)(BOOST_PP_ENUM_PARAMS(n, P))> : public C {				\
+	struct Fake<R (cc C::*)(BOOST_PP_ENUM_PARAMS(n, P)),							\
+		typename std::enable_if<!std::is_void<R>::value>::type> : public C {		\
 		R cc Func(BOOST_PP_ENUM(n, TYPE_AND_PARAM, _)) {							\
 			bool call_ori = true;													\
 			R ret;																	\
@@ -66,8 +69,10 @@
 	};	
 
 #define GEN_FAKE_VOID_MEMBER(n, cc)													\
-	template<typename C	BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, typename P)>	\
-	struct Fake<void (cc C::*)(BOOST_PP_ENUM_PARAMS(n, P))> : public C {			\
+	template<typename R, typename C													\
+		BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, typename P)>					\
+	struct Fake<R (cc C::*)(BOOST_PP_ENUM_PARAMS(n, P)),							\
+		typename std::enable_if<std::is_void<R>::value>::type> : public C {			\
 		void cc Func(BOOST_PP_ENUM(n, TYPE_AND_PARAM, _)) {							\
 			bool call_ori = true;													\
 			C *self = this;															\
@@ -110,7 +115,7 @@ struct FakeFuncKeeper {
 	typedef decltype(Pointer_<typename T::Signature>(0)) Pointer;
 	static Pointer fake;
 
-	template<typename T> struct Fake;
+	template<typename T, typename Enable = void> struct Fake;
 	GEN_FAKE
 };
 
