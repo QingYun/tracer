@@ -126,10 +126,15 @@ tracer::StackWalkIterator DbgHelper::StackWalk( CONTEXT *context /*= nullptr*/ )
 	return StackWalkIterator(context, lock_);
 }
 
-std::string DbgHelper::GetSymbolName( DWORD64 addr ) {
+/*!
+\param [in] addr 要查找的符号的地址
+\param [out] displacement 传入的地址与符号起始地址间的距离
+\return 符号名称
+*/
+std::string DbgHelper::GetSymbolName( DWORD64 addr, DWORD64 *displacement /*= nullptr*/ ) {
 	std::lock_guard<std::mutex> l(lock_);
 	while (true) {
-		if (!SymFromAddr(GetCurrentProcess(), addr, NULL, sym_buffer_))
+		if (!SymFromAddr(GetCurrentProcess(), addr, displacement, sym_buffer_))
 			throw std::runtime_error("SymFromAddr failed " + GetLastErrMsg());
 		if (sym_buffer_->NameLen < sym_buffer_->MaxNameLen)
 			break;

@@ -37,7 +37,7 @@ public:
 	//! 遍历调用栈
 	StackWalkIterator StackWalk(CONTEXT *context = nullptr);
 	//! 根据地址获取符号名
-	std::string GetSymbolName(DWORD64 addr);
+	std::string GetSymbolName(DWORD64 addr, DWORD64 *displacement = nullptr);
 	//! 去除符号名粉碎
 	std::string UnDecorateSymbolName(const std::string symbol_name, DWORD flag = UNDNAME_COMPLETE);
 	//! 根据地址获取符号的文件名
