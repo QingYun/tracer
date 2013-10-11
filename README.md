@@ -81,3 +81,25 @@ Usage
 它有一个公开方法:
 
 - `ret-val-type RetVal(n)` : 返回开始记录后第`n`次调用时的返回值
+
+####CallStackRecorder
+
+记录调用栈
+
+可以使用`CallStackRecorder<decltype(tracer)> recorder(tracer)` 或者 `auto recorder = RecordCallStack(tracer)`创建, 
+它有一个公开方法 :
+
+- `CallStack GetCallStack(n)` : 返回开始记录后第`n`次调用时的调用栈.
+ 
+    `CallStack`对象有两个公开方法 : 
+
+    - `vector<CallStackEntry> Entries()` : 返回整个调用栈记录, `Entries()[0]`是原始函数的调用者, `Entries()[1]`是原始函数调用者的调用者, 依此类推
+    
+        `CallStackEntry`对象有4个公开方法:
+        
+        - `File()` : 返回函数所在的文件名称
+        - `Line()` : 返回函数在文件中的行号
+        - `FuncName()` : 返回函数名
+        - `FuncAddr()` : 返回函数地址
+        
+    - `bool IsCalledBy(f)` : `f`可以是字符串形式的函数名或者是函数指针, 如果在调用栈中找到匹配项则返回`true`, 否则返回`false`.
