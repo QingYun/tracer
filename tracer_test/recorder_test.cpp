@@ -4,6 +4,7 @@
 #include "call_count_recorder.hpp"
 #include "arg_recorder.hpp"
 #include "ret_val_recorder.hpp"
+#include "call_stack_recorder.hpp"
 
 namespace {
 
@@ -22,6 +23,15 @@ int Fac(int n) {
 	return n * Fac(n - 1);
 }
 
+struct C {
+	void Foo() {}
+};
+
+}
+
+void RunFoo() {
+	C c;
+	c.Foo();
 }
 
 TEST(RecorderTest, CallCountTest) {
@@ -44,8 +54,6 @@ TEST(RecorderTest, ArgRecorderTest) {
 		EXPECT_EQ(5 - i, f2a.Arg<0>(i));
 }
 
-
-
 TEST(RecorderTest, RetValRecorderTest) {
 	TRACER_TRACE_NORMAL_FUNC(Fac) fac;
 	auto facr = tracer::RecordRetVal(fac);
@@ -53,4 +61,19 @@ TEST(RecorderTest, RetValRecorderTest) {
 	int result[] = {1, 1, 2, 6};
 	for (int i = 0; i < 4; ++i) 
 		EXPECT_EQ(result[i], facr.RetVal(i));
+}
+
+TEST(RecorderTest, CallStackRecorderTest) {
+	TRACER_TRACE_MEMBER_FUNC(C::Foo) foo;
+	auto fc = tracer::RecordCallStack(foo);
+
+	RunFoo();
+	for (auto itr : fc.GetCallStack(0).Entries())
+		//std::cout << itr.File() << " " << itr.Line() << " " << itr.FuncName() << std::endl;
+	EXPECT_EQ(true, fc.GetCallStack(0).IsCalledBy("RunFoo"));
+	
+	void(*f)();
+	f = [] () { RunFoo(); };
+	f();
+	EXPECT_EQ(true, fc.GetCallStack(1).IsCalledBy(f));
 }

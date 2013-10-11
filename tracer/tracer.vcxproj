@@ -85,6 +85,7 @@
   <ItemGroup>
     <ClInclude Include="arg_recorder.hpp" />
     <ClInclude Include="call_count_recorder.hpp" />
+    <ClInclude Include="call_stack_recorder.hpp" />
     <ClInclude Include="dbg_helper.h" />
     <ClInclude Include="detours\detours.h" />
     <ClInclude Include="detours\detver.h" />

@@ -47,6 +47,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>D:\dx9\Include;../google;../tracer;D:\boost\boost_1_54_0\boost_1_54_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_VARIADIC_MAX=10;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4348</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

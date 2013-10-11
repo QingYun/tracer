@@ -110,5 +110,8 @@
     <ClInclude Include="ret_val_recorder.hpp">
       <Filter>recorders</Filter>
     </ClInclude>
+    <ClInclude Include="call_stack_recorder.hpp">
+      <Filter>recorders</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
