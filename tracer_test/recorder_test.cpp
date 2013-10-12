@@ -5,6 +5,7 @@
 #include "arg_recorder.hpp"
 #include "ret_val_recorder.hpp"
 #include "call_stack_recorder.hpp"
+#include "mixin_tracer.hpp"
 
 namespace {
 
@@ -76,4 +77,14 @@ TEST(RecorderTest, CallStackRecorderTest) {
 	f = [] () { RunFoo(); };
 	f();
 	EXPECT_EQ(true, fc.GetCallStack(1).IsCalledBy(f));
+}
+
+TEST(RecorderTest, MixinTest) {
+	TRACER_TRACE_MEMBER_FUNC_WITH(
+		C::Foo, (tracer::CallCountRecorder)(tracer::CallStackRecorder)) foo;
+	EXPECT_EQ(false, foo.HasBeenCalled());
+
+	RunFoo();
+	EXPECT_EQ(1, foo.CallCount());
+	EXPECT_EQ(true, foo.GetCallStack(0).IsCalledBy(RunFoo));
 }

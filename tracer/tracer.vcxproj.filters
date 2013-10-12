@@ -113,5 +113,8 @@
     <ClInclude Include="call_stack_recorder.hpp">
       <Filter>recorders</Filter>
     </ClInclude>
+    <ClInclude Include="mixin_tracer.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
