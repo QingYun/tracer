@@ -15,13 +15,13 @@ Usage
 
 ###Tracers
 
-使用`TRACER_TRACE_NORMAL_FUNC(func_name)`或`TRACER_TRACE_MEMBER_FUNC(class_name::func_name)`来定义一个变量, 这个变量我们称之为一个`tracer`, `func_name`和`class_name::func_name`表示的函数我们称之为原始函数.
+使用`TRACER_TRACE(func_name)`或`TRACER_TRACE(class_name::func_name)`来定义一个变量, 这个变量我们称之为一个`tracer`, `func_name`和`class_name::func_name`表示的函数我们称之为原始函数.
 
-这两个宏展开后都是一个类, 可以把它们当做一个类型看待.
+这个宏展开后是一个类:
 
-    TRACER_TRACE_NORMAL_FUNC(Foo) foo;
+    TRACER_TRACE(Foo) foo;
     // 等价于
-    typedef TRACER_TRACE_NORMAL_FUNC(Foo) FooTracer;
+    typedef TRACER_TRACE(Foo) FooTracer;
     FooTracer foo;
 
 `tracer`有三个公开的方法:
@@ -106,11 +106,13 @@ Usage
 
 ###Mixin Tracer
 
-使用`TRACER_TRACE_MEMBER_FUNC_WITH`和`TRACER_TRACE_NORMAL_FUNC_WITH`可以把 tracer 和 recorder 的功能混合到一起. 
+使用`TRACER_TRACE_WITH`可以把 tracer 和 recorder 的功能混合到一起. 
 
-这两个宏都接受两个参数, 第一个参数是函数名, 第二个宏是要混合的 recorder 列表, 是`(recorder1)(recorder2)`形式的. 
+这个宏接受两个参数, 第一个参数是函数名, 第二个宏是要混合的 recorder 列表, 是`(recorder1)(recorder2)`形式的. 
 比如要记录`C::Foo`的调用次数和调用栈, 可以这样写
 
-    TRACER_TRACE_MEMBER_FUNC_WITH(C::Foo, (tracer::CallCountRecorder)(tracer::CallStackRecorder)) foo;
+    TRACER_TRACE_WITH(C::Foo, (tracer::CallCountRecorder)(tracer::CallStackRecorder)) foo;
     
 `foo`继承了这两个 recorder 的接口, 所以你可以用`foo.Before().connect()`插入调用前的回调, 也可以用`foo.HasBeenCalled()`判断`C::Foo`是否被调用过, 还可以用`foo.GetCallStack()`来获取调用栈.
+
+除了内置的 recorder 以外, 只要是用`Recorder<T>::Recorder(T&)`形式构造的自定义 recorder 也可以用`TRACER_TRACE_WITH`混合.
