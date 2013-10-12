@@ -34,7 +34,7 @@
 		~RetValRecorderImpl() {															\
 			conn_.disconnect();															\
 		}																				\
-		CONST_REF(P1) RetVal(std::size_t i) const {							\
+		CONST_REF(P1) RetVal(std::size_t i) const {										\
 			return ret_vals_.at(i);														\
 		}																				\
 	};
@@ -57,6 +57,11 @@ template<typename T, typename S> class RetValRecorderImpl;
 
 BOOST_PP_REPEAT(TRACER_ARG_LIMIT, GEN_IMPL, _)
 
+/*!
+\brief 记录返回值
+
+记录的函数必须有返回值, `void(...)` 函数会导致编译错误 
+*/
 template<typename T>
 class RetValRecorder : public RetValRecorderImpl<T, typename T::AfterSignal::Signature> {
 public:

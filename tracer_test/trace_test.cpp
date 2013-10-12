@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
-#include "trace_normal_func.hpp"
-#include "trace_member_func.hpp"
+#include "trace.hpp"
 
 namespace {
 
@@ -24,7 +23,7 @@ public:
 }
 
 TEST(TraceTest, NormalFuncTest) {
-	TRACER_TRACE_NORMAL_FUNC(F1) f1;
+	TRACER_TRACE(F1) f1;
 	f1.Before().connect([] (bool&, int &a) {
 		EXPECT_EQ(10, a);
 	});
@@ -37,7 +36,7 @@ TEST(TraceTest, NormalFuncTest) {
 }
 
 TEST(TraceTest, MemberFuncTest) {
-	TRACER_TRACE_MEMBER_FUNC(C::Exchange) exchange;
+	TRACER_TRACE(C::Exchange) exchange;
 	C a("ObjA"), b("ObjB");
 	auto conn = exchange.Before().connect([&a, &b] (bool&, C *&self, const std::string &str) {
 		EXPECT_EQ("something else", str);
