@@ -77,6 +77,25 @@ struct FoldParameters;
 */
 void ForwardToFoldedParameters();
 
+/*!
+\brief 将函数签名转换为函数指针
+
+对于普通函数的签名, 用 std::add_pointer 就可以转为函数指针, 
+但是这个类模板同时还能保证成员函数指针不会被转换成双重指针.
+*/
+template<typename T, typename Enable = void> struct FunctionPointer;
+
+template<typename T>
+struct FunctionPointer<T, typename std::enable_if<std::is_function<T>::value>::type> {
+	typedef typename std::add_pointer<T>::type type;
+};
+
+template<typename T>
+struct FunctionPointer<T, 
+	typename std::enable_if<std::is_member_function_pointer<T>::value>::type> {
+	typedef T type;
+};
+
 #define BOOST_PP_ITERATION_LIMITS (0, TRACER_FUNCTION_TYPE_LIMIT)
 #define BOOST_PP_FILENAME_1 "function_type.cpp"
 #include BOOST_PP_ITERATE()

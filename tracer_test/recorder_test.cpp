@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
-#include "trace_normal_func.hpp"
-#include "trace_member_func.hpp"
+#include "trace.hpp"
 #include "call_count_recorder.hpp"
 #include "arg_recorder.hpp"
 #include "ret_val_recorder.hpp"
@@ -36,7 +35,7 @@ void RunFoo() {
 }
 
 TEST(RecorderTest, CallCountTest) {
-	TRACER_TRACE_NORMAL_FUNC(F1) f1;
+	TRACER_TRACE(F1) f1;
 	auto f1c = tracer::RecordCallCount(f1);
 	F1(10);
 	EXPECT_EQ(true, f1c.HasBeenCalled());
@@ -47,7 +46,7 @@ TEST(RecorderTest, CallCountTest) {
 }
 
 TEST(RecorderTest, ArgRecorderTest) {
-	TRACER_TRACE_NORMAL_FUNC(F2) f2;
+	TRACER_TRACE(F2) f2;
 	auto f2a = tracer::RecordArgs(f2);
 	int a = 5;
 	F2(a);
@@ -56,7 +55,7 @@ TEST(RecorderTest, ArgRecorderTest) {
 }
 
 TEST(RecorderTest, RetValRecorderTest) {
-	TRACER_TRACE_NORMAL_FUNC(Fac) fac;
+	TRACER_TRACE(Fac) fac;
 	auto facr = tracer::RecordRetVal(fac);
 	Fac(3);
 	int result[] = {1, 1, 2, 6};
@@ -65,7 +64,7 @@ TEST(RecorderTest, RetValRecorderTest) {
 }
 
 TEST(RecorderTest, CallStackRecorderTest) {
-	TRACER_TRACE_MEMBER_FUNC(C::Foo) foo;
+	TRACER_TRACE(C::Foo) foo;
 	auto fc = tracer::RecordCallStack(foo);
 
 	RunFoo();
@@ -80,7 +79,7 @@ TEST(RecorderTest, CallStackRecorderTest) {
 }
 
 TEST(RecorderTest, MixinTest) {
-	TRACER_TRACE_MEMBER_FUNC_WITH(
+	TRACER_TRACE_WITH(
 		C::Foo, (tracer::CallCountRecorder)(tracer::CallStackRecorder)) foo;
 	EXPECT_EQ(false, foo.HasBeenCalled());
 

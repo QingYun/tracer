@@ -100,8 +100,7 @@
     <ClInclude Include="signal_keeper.hpp" />
     <ClInclude Include="singleton.hpp" />
     <ClInclude Include="tracer.h" />
-    <ClInclude Include="trace_member_func.hpp" />
-    <ClInclude Include="trace_normal_func.hpp" />
+    <ClInclude Include="trace.hpp" />
     <ClInclude Include="mixin_tracer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

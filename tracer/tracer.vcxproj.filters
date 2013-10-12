@@ -95,12 +95,6 @@
     <ClInclude Include="fake_func_keeper.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="trace_normal_func.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="trace_member_func.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="call_count_recorder.hpp">
       <Filter>recorders</Filter>
     </ClInclude>
@@ -114,6 +108,9 @@
       <Filter>recorders</Filter>
     </ClInclude>
     <ClInclude Include="mixin_tracer.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="trace.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

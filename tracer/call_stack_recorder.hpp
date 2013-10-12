@@ -7,6 +7,7 @@
 
 namespace tracer {
 
+//! 记录调用栈
 template<typename T>
 class CallStackRecorder {
 public:
@@ -37,9 +38,11 @@ public:
 			std::string &&file, DWORD line) {
 			entries_.emplace_back(std::move(func), func_addr, std::move(file), line);
 		}
+		//! 返回整个调用栈, 第一个元素是被记录函数的调用者
 		const std::vector<CallStackEntry> &Entries() const {
 			return entries_;
 		}
+		//! 判断被记录函数是否被某个函数直接或间接调用过
 		template<typename T>
 		auto IsCalledBy(T func) const -> 
 			typename std::enable_if<(

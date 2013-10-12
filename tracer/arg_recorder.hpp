@@ -46,6 +46,7 @@ template<typename T, typename S> class ArgRecorderImpl;
 
 BOOST_PP_REPEAT(TRACER_ARG_LIMIT, GEN_IMPL, _)
 
+//! ¼ÇÂ¼²ÎÊý
 template<typename T>
 class ArgRecorder : public ArgRecorderImpl<T, typename T::BeforeSignal::Signature> {
 public:

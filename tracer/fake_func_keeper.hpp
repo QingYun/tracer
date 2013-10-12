@@ -106,13 +106,7 @@ namespace tracer {
 
 template<typename T>
 struct FakeFuncKeeper {
-	template<typename S>
-	static S *Pointer_(typename ::std::enable_if<
-		!::std::is_member_function_pointer<S>::value>::type*);
-	template<typename S>
-	static S Pointer_(typename ::std::enable_if<
-		::std::is_member_function_pointer<S>::value>::type*);
-	typedef decltype(Pointer_<typename T::Signature>(0)) Pointer;
+	typedef typename FunctionPointer<typename T::Signature>::type Pointer;
 	static Pointer fake;
 
 	template<typename T, typename Enable = void> struct Fake;
