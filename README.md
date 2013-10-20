@@ -51,6 +51,36 @@ Usage
 - `once(cb)` : 类似于`connect`, 但是这个回调会在被触发一次之后自动断开连接
 - `connect_without_params(cb)` : 类似于`connect`, 但是回调的签名应该是`void()`的.
 
+**示例**:
+
+    class C {
+    	std::string str_;
+    public:
+    	C(const std::string &str) :
+    		str_(str)
+    	{}
+    	std::string Get() {
+    		return str_;
+    	}
+    };
+    
+    int main() {
+    	TRACER_TRACE(C::Get) t;
+    	C a("A"), b("B");
+    	
+    	// 注册一个在C::Get调用前被调用回调, conn是回调的链接管理器
+    	auto conn = t.Before().connect([&b] (bool&, C *&self) {
+    		// 将所有对C::Get的调用都无条件转移到对象b身上
+    		self = &b;
+    	});
+    	
+    	std::string result = a.Get();	// result == "B"
+    	conn.disconnect();
+    	result = a.Get();				// result == "A"
+    }
+    
+- - -
+
 ###Recorders
 
 `recorder`是用来记录`tracer`调用情况的类.
@@ -103,6 +133,39 @@ Usage
         - `FuncAddr()` : 返回函数地址
         
     - `bool IsCalledBy(f)` : `f`可以是字符串形式的函数名或者是函数指针, 如果在调用栈中找到匹配项则返回`true`, 否则返回`false`.
+
+示例:
+
+    struct C {
+    	void Foo() {}
+    };
+    
+    void RunFoo() {
+    	C c;
+    	c.Foo();
+    }
+    
+    int main() {
+    	TRACER_TRACE(C::Foo) foo;
+    	auto fc = tracer::RecordCallStack(foo);
+    
+    	RunFoo();
+    	
+    	// 输出第一次调用中各个调用者的信息
+    	for (auto itr : fc.GetCallStack(0).Entries())
+    		std::cout << itr.File() << " " << itr.Line() << " " << itr.FuncName() << std::endl;
+    		
+    	// 检查第一次调用时调用栈中是否有名为"RunFoo"的调用者
+    	assert(true == fc.GetCallStack(0).IsCalledBy("RunFoo"));
+    	
+    	void(*f)();
+    	f = [] () { RunFoo(); };
+    	f();
+    	// 通过比较函数地址检查第二次调用时是否有调用者f
+    	assert(true == fc.GetCallStack(1).IsCalledBy(f));
+    }
+
+- - -
 
 ###Mixin Tracer
 
