@@ -23,37 +23,68 @@ std::string GetLastErrMsg() {
 	return ret;
 }
 
+void GetAPIResult(std::function<DWORD(DWORD, LPSTR)> api, 
+				  DWORD &buf_size, std::unique_ptr<char> &buf, 
+				  std::function<void(LPSTR)> succ, DWORD err_code = 0) {
+	DWORD need_size = 0;
+	while (true)
+	{
+		need_size = api(buf_size, buf.get());
+		if (need_size == err_code)
+			return;
+		else if (need_size > buf_size) {
+			buf_size *= 2;
+			buf.reset(new char[buf_size]);
+		} else {
+			succ(buf.get());
+			return;
+		}
+	}
+}
+
 }
 
 namespace tracer {
 
 std::string DbgHelper::GetSymSearchPath_() {
 	std::string path(".;");
-	const std::size_t buf_size = 4096;
-	char buf[buf_size];
+	DWORD buf_size = 4096;
+	std::unique_ptr<char> buf(new char[buf_size]);
 
-	if (GetCurrentDirectoryA(buf_size, buf) > 0) 
-		path.append(buf).append(";");
+	GetAPIResult(GetCurrentDirectoryA, buf_size, buf, [&path] (char *result) {
+		path.append(result).append(";");
+	});
 
-	if (GetModuleFileNameA(NULL, buf, buf_size) > 0) {
-		for (char *p = (buf + strlen(buf) - 1); p >= buf; --p) {
+	GetAPIResult([] (DWORD s, char *b) { 
+		return GetModuleFileNameA(NULL, b, s); 
+	}, buf_size, buf, [&path] (char *result) {
+		for (char *p = (result + strlen(result) - 1); p >= result; --p) {
 			if ((*p == '\\') || (*p == '/') || (*p == ';')) {
 				*p = '\0';
 				break;
 			}
 		}
-		if (strlen(buf) > 0)
-			path.append(buf).append(";");
-	}
+		if (strlen(result))
+			path.append(result).append(";");
+	});
 
-	if (GetEnvironmentVariableA("_NT_SYMBOL_PATH", buf, buf_size) > 0)
-		path.append(buf).append(";");
+	GetAPIResult([] (DWORD s, char *b) { 
+		return GetEnvironmentVariableA("_NT_SYMBOL_PATH", b, s);
+	}, buf_size, buf, [&path] (char *result) {
+		path.append(result).append(";");
+	});
 
-	if (GetEnvironmentVariableA("_NT_ALTERNATE_SYMBOL_PATH", buf, buf_size) > 0)
-		path.append(buf).append(";");
+	GetAPIResult([] (DWORD s, char *b) {
+		return GetEnvironmentVariableA("_NT_ALTERNATE_SYMBOL_PATH", b, s);
+	}, buf_size, buf, [&path] (char *result) {
+		path.append(result).append(";");
+	});
 
-	if (GetEnvironmentVariableA("SYSTEMROOT", buf, buf_size) > 0)
-		path.append(buf).append(";").append(buf).append("\\system32").append(";");
+	GetAPIResult([] (DWORD s, char *b) {
+		return GetEnvironmentVariableA("SYSTEMROOT", b, s);
+	}, buf_size, buf, [&path] (char *result) {
+		path.append(result).append(";").append(result).append("\\system32").append(";");
+	});
 
 	return path;	
 }
