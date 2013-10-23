@@ -183,6 +183,7 @@ StackWalkIterator::StackWalkIterator( CONTEXT *context, std::mutex &lock ) :
 	lock_(lock) {
 	ZeroMemory(&sf_, sizeof(sf_));
 	if (context_) {
+		std::lock_guard<std::mutex> l(lock_);
 		sf_.AddrPC.Offset = context_->Eip;
 		sf_.AddrPC.Mode = AddrModeFlat;
 		sf_.AddrFrame.Offset = context_->Ebp;
@@ -193,14 +194,15 @@ StackWalkIterator::StackWalkIterator( CONTEXT *context, std::mutex &lock ) :
 			&sf_, context_, NULL, SymFunctionTableAccess64, SymGetModuleBase64, NULL))
 			throw std::runtime_error("StackWalk64 failed " + GetLastErrMsg());
 	}
-		
 }
 
 StackWalkIterator & StackWalkIterator::operator++() {
-	if (context_)
+	if (context_) {
+		std::lock_guard<std::mutex> l(lock_);
 		if (!StackWalk64(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(), GetCurrentThread(), 
 			&sf_, context_, NULL, SymFunctionTableAccess64, SymGetModuleBase64, NULL)) 
 			context_ = nullptr;
+	}
 	return *this;
 }
 
