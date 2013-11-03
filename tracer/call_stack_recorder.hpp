@@ -140,7 +140,7 @@ public:
 			CallStack call_stack;
 
 			auto itr = DbgHelper::Instance().StackWalk(&c);
-			for (int i = 0; i < 19; ++i) ++itr;
+			//for (int i = 0; i < 19; ++i) ++itr;
 
 			DWORD64 displacement;
 			for (; itr; ++itr) {

@@ -69,7 +69,7 @@ TEST(RecorderTest, CallStackRecorderTest) {
 
 	RunFoo();
 	for (auto itr : fc.GetCallStack(0).Entries())
-		//std::cout << itr.File() << " " << itr.Line() << " " << itr.FuncName() << std::endl;
+		;//std::cout << itr.File() << " " << itr.Line() << " " << itr.FuncName() << std::endl;
 	EXPECT_EQ(true, fc.GetCallStack(0).IsCalledBy("RunFoo"));
 	
 	void(*f)();

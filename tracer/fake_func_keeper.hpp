@@ -1,106 +1,78 @@
 #pragma once
-#include <boost/preprocessor.hpp>
 #include <type_traits>
 #include "function_type.hpp"
 
-#ifndef TRACER_ARG_LIMIT
-#define TRACER_ARG_LIMIT 10
-#endif
-
-#define TYPE_AND_PARAM(z, n, _)														\
-	BOOST_PP_CAT(P, n) BOOST_PP_CAT(p, n)
-
-#define GEN_FAKE_FUNC(n, cc)														\
-	template<typename R BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, typename P)>	\
-	struct Fake<R (cc *)(BOOST_PP_ENUM_PARAMS(n, P)),								\
+#define GEN_FAKE_FUNC(cc)															\
+	template<typename R, typename... Args> struct Fake<R(cc *)(Args...),			\
 		typename std::enable_if<!std::is_void<R>::value>::type> {					\
-		static R cc Func(BOOST_PP_ENUM(n, TYPE_AND_PARAM, _)) {						\
+		static R cc Func(Args... args) {											\
 			bool call_ori = true;													\
+			SignalKeeper<T::BeforeSignal>::signal(call_ori, args...);				\
+			if (call_ori) {															\
+				R ret(RealFuncKeeper<T>::real(args...));							\
+				SignalKeeper<T::AfterSignal>::signal(call_ori, ret, args...);		\
+				return ret;															\
+			}																		\
 			R ret;																	\
-			::tracer::ForwardToFoldedParameters(									\
-				::std::ref(::tracer::SignalKeeper<T::BeforeSignal>::signal),		\
-				call_ori BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));			\
-			if (call_ori)															\
-				ret = RealFuncKeeper<T>::real(BOOST_PP_ENUM_PARAMS(n, p));			\
-			::tracer::ForwardToFoldedParameters(									\
-				::std::ref(::tracer::SignalKeeper<T::AfterSignal>::signal),			\
-				call_ori, ret BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));		\
+			SignalKeeper<T::AfterSignal>::signal(call_ori, ret, args...);			\
 			return ret;																\
 		}																			\
-	};																				
+	};
 
-#define GEN_FAKE_VOID_FUNC(n, cc)													\
-	template<typename R BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, typename P)>	\
-	struct Fake<R (cc *)(BOOST_PP_ENUM_PARAMS(n, P)),								\
+#define GEN_FAKE_VOID_FUNC(cc)														\
+	template<typename R, typename... Args> struct Fake<R(cc *)(Args...),			\
 		typename std::enable_if<std::is_void<R>::value>::type> {					\
-		static void cc Func(BOOST_PP_ENUM(n, TYPE_AND_PARAM, _)) {					\
+		static void cc Func(Args... args) {											\
 			bool call_ori = true;													\
-			::tracer::ForwardToFoldedParameters(									\
-				::std::ref(::tracer::SignalKeeper<T::BeforeSignal>::signal),		\
-				call_ori BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));			\
+			SignalKeeper<T::BeforeSignal>::signal(call_ori, args...);				\
 			if (call_ori)															\
-				RealFuncKeeper<T>::real(BOOST_PP_ENUM_PARAMS(n, p));				\
-			::tracer::ForwardToFoldedParameters(									\
-				::std::ref(::tracer::SignalKeeper<T::AfterSignal>::signal),			\
-				call_ori BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));			\
+				RealFuncKeeper<T>::real(args...);									\
+			SignalKeeper<T::AfterSignal>::signal(call_ori, args...);				\
 		}																			\
 	};
 
-#define GEN_FAKE_MEMBER(n, cc)														\
-	template<typename R, typename C													\
-		BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, typename P)>					\
-	struct Fake<R (cc C::*)(BOOST_PP_ENUM_PARAMS(n, P)),							\
+#define GEN_FAKE_MEMBER(cc)															\
+	template<typename R, typename C, typename... Args>								\
+	struct Fake<R(cc C::*)(Args...),												\
 		typename std::enable_if<!std::is_void<R>::value>::type> : public C {		\
-		R cc Func(BOOST_PP_ENUM(n, TYPE_AND_PARAM, _)) {							\
+		R cc Func(Args... args) {													\
 			bool call_ori = true;													\
-			R ret;																	\
 			C *self = this;															\
-			::tracer::ForwardToFoldedParameters(									\
-				::std::ref(::tracer::SignalKeeper<T::BeforeSignal>::signal),		\
-				call_ori, self BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));	\
-			if (call_ori)															\
-				ret = (self->*RealFuncKeeper<T>::real)(BOOST_PP_ENUM_PARAMS(n, p));	\
-			::tracer::ForwardToFoldedParameters(									\
-				::std::ref(::tracer::SignalKeeper<T::AfterSignal>::signal),			\
-				call_ori, ret, self													\
-				BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));					\
+			SignalKeeper<T::BeforeSignal>::signal(call_ori, self, args...);			\
+			if (call_ori) {															\
+				R ret((self->*RealFuncKeeper<T>::real)(args...));					\
+				SignalKeeper<T::AfterSignal>::signal(call_ori, ret, self, args...);	\
+				return ret;															\
+			}																		\
+			R ret;																	\
+			SignalKeeper<T::AfterSignal>::signal(call_ori, ret, self, args...);		\
 			return ret;																\
 		}																			\
-	};	
+	};
 
-#define GEN_FAKE_VOID_MEMBER(n, cc)													\
-	template<typename R, typename C													\
-		BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, typename P)>					\
-	struct Fake<R (cc C::*)(BOOST_PP_ENUM_PARAMS(n, P)),							\
+#define GEN_FAKE_VOID_MEMBER(cc)													\
+	template<typename R, typename C, typename... Args>								\
+	struct Fake<R(cc C::*)(Args...),												\
 		typename std::enable_if<std::is_void<R>::value>::type> : public C {			\
-		void cc Func(BOOST_PP_ENUM(n, TYPE_AND_PARAM, _)) {							\
+		void cc Func(Args... args) {												\
 			bool call_ori = true;													\
 			C *self = this;															\
-			::tracer::ForwardToFoldedParameters(									\
-				::std::ref(::tracer::SignalKeeper<T::BeforeSignal>::signal),		\
-				call_ori, self BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));	\
+			SignalKeeper<T::BeforeSignal>::signal(call_ori, self, args...);			\
 			if (call_ori)															\
-				(self->*RealFuncKeeper<T>::real)(BOOST_PP_ENUM_PARAMS(n, p));		\
-			::tracer::ForwardToFoldedParameters(									\
-				::std::ref(::tracer::SignalKeeper<T::AfterSignal>::signal),			\
-				call_ori, self BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS(n, p));	\
+				(self->*RealFuncKeeper<T>::real)(args...);							\
+			SignalKeeper<T::AfterSignal>::signal(call_ori, self, args...);			\
 		}																			\
 	};
 
-#define GEN_FAKE_CC(n, cc)															\
-	GEN_FAKE_FUNC(n, cc)															\
-	GEN_FAKE_VOID_FUNC(n, cc)														\
-	GEN_FAKE_MEMBER(n, cc)															\
-	GEN_FAKE_VOID_MEMBER(n, cc)
-	
-			
-#define GEN_FAKE_N(z, n, _)															\
-	GEN_FAKE_CC(n, BOOST_PP_EMPTY())												\
-	GEN_FAKE_CC(n, __stdcall)
+#define GEN_FAKE_CC(cc)																\
+	GEN_FAKE_FUNC(cc)																\
+	GEN_FAKE_VOID_FUNC(cc)															\
+	GEN_FAKE_MEMBER(cc)																\
+	GEN_FAKE_VOID_MEMBER(cc)
 
 #define GEN_FAKE																	\
-	BOOST_PP_REPEAT(TRACER_ARG_LIMIT, GEN_FAKE_N, _)
-
+	GEN_FAKE_CC()																	\
+	GEN_FAKE_CC( __stdcall)
 
 namespace tracer {
 
@@ -121,6 +93,8 @@ typename FakeFuncKeeper<T>::Pointer FakeFuncKeeper<T>::fake =
 }	// namespace tracer
 
 #undef GEN_FAKE
-#undef GEN_FAKE_N
 #undef GEN_FAKE_CC
-#undef TYPE_AND_PARAM
+#undef GEN_FAKE_FUNC
+#undef GEN_FAKE_VOID_FUNC
+#undef GEN_FAKE_MEMBER
+#undef GEN_FAKE_VOID_MEMBER
