@@ -39,9 +39,6 @@
     <ClCompile Include="detours\uimports.cpp">
       <Filter>detours</Filter>
     </ClCompile>
-    <ClCompile Include="signal.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="function_type.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
