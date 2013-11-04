@@ -71,7 +71,6 @@
     <ClCompile Include="function_type_test.cpp" />
     <ClCompile Include="gtest-all.cc" />
     <ClCompile Include="hook_manager_test.cpp" />
-    <ClCompile Include="manual_code_test.cpp" />
     <ClCompile Include="recorder_test.cpp">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
     </ClCompile>

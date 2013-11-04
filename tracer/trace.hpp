@@ -14,71 +14,63 @@ template<typename S, typename Enable = void> struct AfterSignalSignature;
 template<typename S>
 struct BeforeSignalSignature<S, 
 	typename std::enable_if<std::is_member_function_pointer<S>::value>::type> {
-	typedef
-		typename FoldParameters<									
-			typename AllParamsToRef<								
-				typename PrependParameter<							
-					typename SetResultType<						
-						typename MemberToNormal<S>::type,	
-						void										
-					>::type,										
-					bool											
-				>::type												
-			>::type													
-		>::type	type;												
+	typedef								
+		typename AllParamsToRef<								
+			typename PrependParameter<							
+				typename SetResultType<						
+					typename MemberToNormal<S>::type,	
+					void										
+				>::type,										
+				bool											
+			>::type												
+		>::type type;												
 };
 
 template<typename S>
 struct BeforeSignalSignature<S,
 	typename std::enable_if<!std::is_member_function_pointer<S>::value>::type> {
-	typedef 
-		typename FoldParameters<									
-			typename AllParamsToRef<								
-				typename PrependParameter<							
-					typename SetResultType<S, void>::type,	
-					bool											
-				>::type												
-			>::type													
-		>::type type;												
+	typedef 								
+		typename AllParamsToRef<								
+			typename PrependParameter<							
+				typename SetResultType<S, void>::type,	
+				bool											
+			>::type												
+		>::type	type;												
 };
 
 template<typename S>
 struct AfterSignalSignature<S,
 	typename std::enable_if<std::is_member_function_pointer<S>::value>::type> {
-	typedef 
-		typename FoldParameters<											
-			typename PrependParameter<										
-				typename AllParamsToRef<									
-					typename PrependParameter<								
-						typename SetResultType<							
-							typename MemberToNormal<S>::type,		
-							void											
-						>::type,											
-						typename ResultType<								
-							typename MemberToNormal<S>::type		
-						>::type												
-					>::type													
-				>::type,													
-				bool														
-			>::type															
+	typedef 											
+		typename PrependParameter<										
+			typename AllParamsToRef<									
+				typename PrependParameter<								
+					typename SetResultType<							
+						typename MemberToNormal<S>::type,		
+						void											
+					>::type,											
+					typename ResultType<								
+						typename MemberToNormal<S>::type		
+					>::type												
+				>::type													
+			>::type,													
+			bool														
 		>::type	type;															
 };
 
 template<typename S>
 struct AfterSignalSignature<S,
 	typename std::enable_if<!std::is_member_function_pointer<S>::value>::type> {
-	typedef 
-		typename FoldParameters<										
-			typename PrependParameter<									
-				typename AllParamsToRef<								
-					typename PrependParameter<							
-						typename SetResultType<S, void>::type,	
-						typename ResultType<S>::type			
-					>::type												
-				>::type,												
-				bool													
-			>::type														
-		>::type type;													
+	typedef 									
+		typename PrependParameter<									
+			typename AllParamsToRef<								
+				typename PrependParameter<							
+					typename SetResultType<S, void>::type,	
+					typename ResultType<S>::type			
+				>::type												
+			>::type,												
+			bool													
+		>::type	type;													
 };
 
 }	// namespace tracer

@@ -27,9 +27,6 @@
     <ClCompile Include="hook_manager_test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="manual_code_test.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="dbg_helper_test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>

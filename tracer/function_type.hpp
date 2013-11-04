@@ -1,7 +1,6 @@
 #pragma once
-#include <boost/preprocessor.hpp>
+#include <type_traits>
 
-#define TRACER_FUNCTION_TYPE_LIMIT 15
 namespace tracer {
 
 /*!
@@ -13,6 +12,16 @@ namespace tracer {
 template<typename T>
 struct MemberToNormal;
 
+template<typename R, typename C, typename... Args>
+struct MemberToNormal<R(C::*)(Args...)> {
+	typedef R type(C*, Args...);
+};
+
+template<typename R, typename C, typename... Args>
+struct MemberToNormal<R(__stdcall C::*)(Args...)> {
+	typedef R __stdcall type(C*, Args...);
+};
+
 /*!
 \brief 在参数列表头部插入一个参数
 
@@ -22,6 +31,26 @@ struct MemberToNormal;
 template<typename T1, typename T2>
 struct PrependParameter;
 
+template<typename Adding, typename R, typename... Args>
+struct PrependParameter<R(Args...), Adding> {
+	typedef R type(Adding, Args...);
+};
+
+template<typename Adding, typename R, typename... Args>
+struct PrependParameter<R __stdcall(Args...), Adding> {
+	typedef R __stdcall type(Adding, Args...);
+};
+
+template<typename R, typename... Args>
+struct PrependParameter<R(Args...), void> {
+	typedef R type(Args...);
+};
+
+template<typename R, typename... Args>
+struct PrependParameter<R __stdcall(Args...), void> {
+	typedef R __stdcall type(Args...);
+};
+
 /*!
 \brief 将所有参数都变为对应的引用类型
 
@@ -29,6 +58,16 @@ struct PrependParameter;
 */
 template<typename T>
 struct AllParamsToRef;
+
+template<typename R, typename... Args>
+struct AllParamsToRef<R(Args...)> {
+	typedef R type(typename std::add_lvalue_reference<Args>::type...);
+};
+
+template<typename R, typename... Args>
+struct AllParamsToRef<R __stdcall(Args...)> {
+	typedef R __stdcall type(typename std::add_lvalue_reference<Args>::type...);
+};
 
 /*!
 \brief 设置函数签名中返回值的类型
@@ -38,13 +77,30 @@ struct AllParamsToRef;
 template<typename T1, typename T2>
 struct SetResultType;
 
+template<typename Setting, typename R, typename... Args> 
+struct SetResultType<R(Args...), Setting> {
+	typedef Setting type(Args...);
+};
+
+template<typename Setting, typename R, typename... Args>
+struct SetResultType<R __stdcall(Args...), Setting> {
+	typedef Setting __stdcall type(Args...);
+};
+
 /*!
 \brief 将__stdcall的函数签名变为默认调用约定
 
 比如对于`<int __stdcall (int)>`, 则会生成`int(int)`
 */
 template<typename T>
-struct RemoveStdcall;
+struct RemoveStdcall {
+	typedef T type;
+};
+
+template<typename R, typename... Args>
+struct RemoveStdcall<R __stdcall(Args...)> {
+	typedef R type(Args...);
+};
 
 /*!
 \brief 获取传入的函数签名的返回值类型
@@ -54,28 +110,15 @@ struct RemoveStdcall;
 template<typename T>
 struct ResultType;
 
-/*!
-\brief 折叠参数
+template<typename R, typename... Args>
+struct ResultType<R(Args...)> {
+	typedef R type;
+};
 
-如果参数数量大于7个, 则会将第6个以后的参数并入一个`tuple`作为第7个参数.  
-比如对于`int(int, int, int, int, int, char, short, int, long, long long)`, 则会生成
-`int(int, int, int, int, int, char, std::tuple<short, int, long, long long>)`
-*/
-template<typename T>
-struct FoldParameters;
-
-/*!
-\brief 转发为折叠参数的调用
-
-接收一个见过参数折叠的可调用对象`func`和需要传给它的参数:
-
-- 如果`func`需要的参数少于7个, 则不做任何修改, 直接将参数转发给它.
-- 如果`func`需要的参数多于7个(多出来的部分并为一个`tuple`作为第7个参数), 则将前6个参数直接转发
-给`func`, 剩下的参数并为`tuple`传给`func`
-
-\sa FoldParameters
-*/
-void ForwardToFoldedParameters();
+template<typename R, typename... Args>
+struct ResultType<R __stdcall(Args...)> {
+	typedef R type;
+};
 
 /*!
 \brief 将函数签名转换为函数指针
@@ -95,9 +138,5 @@ struct FunctionPointer<T,
 	typename std::enable_if<std::is_member_function_pointer<T>::value>::type> {
 	typedef T type;
 };
-
-#define BOOST_PP_ITERATION_LIMITS (0, TRACER_FUNCTION_TYPE_LIMIT)
-#define BOOST_PP_FILENAME_1 "function_type.cpp"
-#include BOOST_PP_ITERATE()
 
 }	// namespace tracer

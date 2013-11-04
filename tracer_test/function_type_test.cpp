@@ -68,49 +68,4 @@ TEST(FunctionTypeTest, ResultTypeTest) {
 	StaticAssertTypeEq<A*, ResultType<decltype(F8)>::type>();
 }
 
-TEST(FunctionTypeTest, FoldParametersTest) {
-	StaticAssertTypeEq<decltype(F1), FoldParameters<decltype(F1)>::type>();
-	StaticAssertTypeEq<decltype(F4), FoldParameters<decltype(F4)>::type>();
-	typedef void Sig(int, int, int, int, int, int, int);
-	StaticAssertTypeEq<Sig, FoldParameters<Sig>::type>();
-	StaticAssertTypeEq<
-		A(char, short, int, long, long long, unsigned char,  
-		std::tuple<unsigned short, unsigned int, unsigned long, unsigned long long>), 
-		FoldParameters<decltype(F3)>::type>();
-}
-
-void F9() {}
-
-int F10(int a, double b) {
-	EXPECT_EQ(1, a);
-	EXPECT_DOUBLE_EQ(2.2, b);
-	return a;
-}
-
-void F11(char p1, short p2, int p3, long p4, long long p5, unsigned char p6, 
-	std::tuple<unsigned short, unsigned int, unsigned long, unsigned long long> p8) {
-		EXPECT_EQ(1, p1);
-		EXPECT_EQ(2, p2);
-		EXPECT_EQ(3, p3);
-		EXPECT_EQ(4, p4);
-		EXPECT_EQ(5, p5);
-		EXPECT_EQ(6, p6);
-		unsigned short a;
-		unsigned int b;
-		unsigned long c;
-		unsigned long long d;
-		std::tie(a, b, c, d) = p8;
-		EXPECT_EQ(7, a);
-		EXPECT_EQ(8, b);
-		EXPECT_EQ(9, c);
-		EXPECT_EQ(10, d);
-}
-
-
-TEST(FunctionTypeTest, ForwardToFoldedParametersTest) {
-	ForwardToFoldedParameters(F9);
-	EXPECT_EQ(1, ForwardToFoldedParameters(F10, 1, 2.2));
-	ForwardToFoldedParameters(F11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-}
-
 }	// namespace tracer

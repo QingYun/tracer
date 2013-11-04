@@ -73,9 +73,6 @@
     <ClCompile Include="detours\uimports.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="function_type.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="hook_impl.cpp" />
     <ClCompile Include="hook_manager.cpp" />
   </ItemGroup>
