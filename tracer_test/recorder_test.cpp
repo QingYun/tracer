@@ -35,7 +35,7 @@ void RunFoo() {
 }
 
 TEST(RecorderTest, CallCountTest) {
-	TRACER_TRACE(F1) f1;
+	TRACER_TRACE(&F1) f1;
 	auto f1c = tracer::RecordCallCount(f1);
 	F1(10);
 	EXPECT_EQ(true, f1c.HasBeenCalled());
@@ -46,7 +46,7 @@ TEST(RecorderTest, CallCountTest) {
 }
 
 TEST(RecorderTest, ArgRecorderTest) {
-	TRACER_TRACE(F2) f2;
+	TRACER_TRACE(&F2) f2;
 	auto f2a = tracer::RecordArgs(f2);
 	int a = 5;
 	F2(a);
@@ -55,7 +55,7 @@ TEST(RecorderTest, ArgRecorderTest) {
 }
 
 TEST(RecorderTest, RetValRecorderTest) {
-	TRACER_TRACE(Fac) fac;
+	TRACER_TRACE(&Fac) fac;
 	auto facr = tracer::RecordRetVal(fac);
 	Fac(3);
 	int result[] = {1, 1, 2, 6};
@@ -64,7 +64,7 @@ TEST(RecorderTest, RetValRecorderTest) {
 }
 
 TEST(RecorderTest, CallStackRecorderTest) {
-	TRACER_TRACE(C::Foo) foo;
+	TRACER_TRACE(&C::Foo) foo;
 	auto fc = tracer::RecordCallStack(foo);
 
 	RunFoo();
@@ -80,7 +80,7 @@ TEST(RecorderTest, CallStackRecorderTest) {
 
 TEST(RecorderTest, MixinTest) {
 	TRACER_TRACE_WITH(
-		C::Foo, (tracer::CallCountRecorder)(tracer::CallStackRecorder)) foo;
+		&C::Foo, (tracer::CallCountRecorder)(tracer::CallStackRecorder)) foo;
 	EXPECT_EQ(false, foo.HasBeenCalled());
 
 	RunFoo();
