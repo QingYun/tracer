@@ -79,7 +79,7 @@ struct AfterSignalSignature<S,
 
 #define TRACER_TRACE(func)																	\
 	struct TRACER_CLASS_NAME {																\
-		typedef ::std::remove_pointer<decltype(&func)>::type Signature;						\
+		typedef ::std::remove_pointer<decltype(func)>::type Signature;						\
 		struct BeforeSignal {																\
 			typedef ::tracer::BeforeSignalSignature<Signature>::type Signature;				\
 		};																					\
@@ -93,7 +93,7 @@ struct AfterSignalSignature<S,
 		TRACER_CLASS_NAME() :																\
 			before_signal_(::tracer::SignalKeeper<BeforeSignal>::signal),					\
 			after_signal_(::tracer::SignalKeeper<AfterSignal>::signal) {					\
-			::tracer::RealFuncKeeper<TRACER_CLASS_NAME>::real = &func;						\
+			::tracer::RealFuncKeeper<TRACER_CLASS_NAME>::real = func;						\
 			if (NO_ERROR != ::tracer::HookManager::Instance().Install(						\
 				reinterpret_cast<void**>(&::tracer::RealFuncKeeper<							\
 					TRACER_CLASS_NAME>::real),												\
