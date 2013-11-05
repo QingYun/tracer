@@ -15,13 +15,13 @@ Usage
 
 ###Tracers
 
-使用`TRACER_TRACE(func_name)`或`TRACER_TRACE(class_name::func_name)`来定义一个变量, 这个变量我们称之为一个`tracer`, `func_name`和`class_name::func_name`表示的函数我们称之为原始函数.
+使用`TRACER_TRACE(func)`来定义一个变量, 这个变量我们称之为一个`tracer`, `func`应该是一个求值为函数指针的表达式, 我们称之为原始函数.
 
 这个宏展开后是一个类:
 
-    TRACER_TRACE(Foo) foo;
+    TRACER_TRACE(&Foo) foo;
     // 等价于
-    typedef TRACER_TRACE(Foo) FooTracer;
+    typedef TRACER_TRACE(&Foo) FooTracer;
     FooTracer foo;
 
 `tracer`有三个公开的方法:
@@ -65,7 +65,7 @@ Usage
     };
     
     int main() {
-    	TRACER_TRACE(C::Get) t;
+    	TRACER_TRACE(&C::Get) t;
     	C a("A"), b("B");
     	
     	// 注册一个在C::Get调用前被调用回调, conn是回调的链接管理器
@@ -78,6 +78,10 @@ Usage
     	conn.disconnect();
     	result = a.Get();				// result == "A"
     }
+    
+    
+传递给宏的可以是任意求值为函数指针的表达式, 因此如果需要追踪有多个重载版本的函数的某一重载版本, 
+只需传递`static_cast<func_point_type>(&func_name)`即可, 这个技巧还可以用来处理那些在编译期只知道类型, 地址在运行期才能获取的函数
     
 - - -
 
@@ -146,7 +150,7 @@ Usage
     }
     
     int main() {
-    	TRACER_TRACE(C::Foo) foo;
+    	TRACER_TRACE(&C::Foo) foo;
     	auto fc = tracer::RecordCallStack(foo);
     
     	RunFoo();
