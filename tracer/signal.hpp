@@ -27,7 +27,7 @@ public:
 	{
 		return connect_extended([in_slot](const Connection &conn, Args... args) {
 			conn.disconnect();
-			return in_solt(args...);
+			return in_slot(args...);
 		}, at);
 	}
 	boost::signals2::connection once(const typename signal_t::group_type& group,
@@ -36,7 +36,7 @@ public:
 	{
 		return connect_extended(group, [in_slot](const Connection &conn, Args... args) {
 			conn.disconnect();
-			return in_solt(args...);
+			return in_slot(args...);
 		}, at);
 	}
 
