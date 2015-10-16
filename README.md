@@ -1,57 +1,61 @@
 Tracer
 ======
 
-A simple hook library for testing and debuging
+A C++ library that enables you to decorate a function at runtime.
 
 Introduction
 ---
 
-Tracer可以让你在不修改代码的前提下, 在指定函数调用前后以回调的形式插入代码.
+Tracer can insert callbacks before or after a call to a given function without the need of modifying its code. [中文版](https://github.com/QingYun/tracer/blob/master/README.cn.md)
 
 Usage
 ---
 
-首先, 包含头文件`tracer/tracer.h`, 然后配置一下Boost路径.
+Include `tracer/tracer.h` and add the path to Boost into the include directories option.
 
 ###Tracers
 
-使用`TRACER_TRACE(func)`来定义一个变量, 这个变量我们称之为一个`tracer`, `func`应该是一个求值为函数指针的表达式, 我们称之为原始函数.
+Use `TRACER_TRACE(func)` as a type name to define a variable, which could be called a `tracer`, `func` is a function pointer and we call it the original function.
 
-这个宏展开后是一个类:
+This `TRACER_TRACE` macro will expand to a class:
 
     TRACER_TRACE(&Foo) foo;
-    // 等价于
+    
+    // equals to 
     typedef TRACER_TRACE(&Foo) FooTracer;
     FooTracer foo;
 
-`tracer`有三个公开的方法:
+A `tracer` has three public methods:
 
 - **Before()**
 
-  返回一个`tracer::Signal`对象的引用, 它会在调用原始函数前被触发.
+  Returns a reference to a `tracer::Signal` object, this signal will be triggered just before the original function being called.
   
-  `tracer::Signal`派生自`boost.signals2`, 可以使用其所有公开接口, 比如使用`connect(callback)`注册一个回调, 这个回调会在每次信号被触发时被调用. 
+  `tracer::Signal` derives from `boost.signals2`, so you can use all its public methods, like using `connect(callback)` to register a new callback which will be called every time when this signal is triggered. 
   
-  回调应该是一个没有返回值的可调用对象, 其第一个参数应该是`bool&`类型的, 表示是否想要调用原始函数, 将其赋值为`false`将不会调用原始函数; 如果原始函数是一个类的非静态成员函数, 则第二个参数应该是类指针的引用, 传入时它的值即为`this`, 在回调中可以修改它, 将其指向其他对象, 这样可以将调用转移到其他对象上; 剩下的参数依次是原始函数参数的引用, 它们都可以在回调中被修改.
+  The callback should not return anything so its signature is like `void(bool&, ...)`. The first parameter is always a `bool&`, a flag with a default value of `true`, indicates if the original function should be called, so if you don't want the original function to be called, just simply assign `false` to it; remained parameters are references to the arguments to the original function, in the same order. If the original function is a non-static function member, then there will be a extra parameter as the second parameter, wich is the reference to `this`
   
-  比如原始函数的签名为`int(int)`, 则回调的类型应该是`void(bool&, int&)`
+  Examples:
+  
+    - `int(int)` => `void(bool&, int&)`
+    - `std::string (C::*)(std::string)` => `void(bool&, C*&, std::string&)`
 
 - **After()**
 
-  返回一个`tracer::Signal`对象的引用, 它会在调用原始函数后被触发.
+  Returns a reference to a `tracer::Signal` object which will be triggered after the original function is called
   
-  回调类型类似于`Before()`的回调, 但是第一个参数应该是`bool`的, 表示是否已经调用了原始函数, 接下来是返回值的引用, 剩下的和`Before()`一样
+  The callback signature is almost the same as the one for `Before()`, the only difference is the first parameter becomes a `bool` instead of a `bool&` to indicates whether the original function has been called and the second parameter will be a reference to its return value.
 
 - **RealFunc()**
 
-  返回一个和原始函数签名一样的函数指针, 调用这个指针可以避免触发信号, 直接调用原始函数.
+  Returns a function pointer that has the same signature as the original function and invocations to this function pointer will be directly directed to the original function without triggering callbacks.
 
-除了`boost.signals2`原有的接口, `tracer::Signal`还提供了两个新的方法:
+Besides methods inherited from `boost.signals2`, there are two new methods in `tracer::Signal`:
 
-- `once(cb)` : 类似于`connect`, 但是这个回调会在被触发一次之后自动断开连接
-- `connect_without_params(cb)` : 类似于`connect`, 但是回调的签名应该是`void()`的.
+- `once(cb)` : like `connect` but the callback will be disconnected automatically after the first invocation.
+- `connect_without_params(cb)` : like `connect` but always receives a `void()` function. It's very handy when you have no interests in parameters.
 
-**示例**:
+**example code**:
 
     class C {
     	std::string str_;
@@ -68,9 +72,9 @@ Usage
     	TRACER_TRACE(&C::Get) t;
     	C a("A"), b("B");
     	
-    	// 注册一个在C::Get调用前被调用回调, conn是回调的链接管理器
+    	// conn is for managing connection state
     	auto conn = t.Before().connect([&b] (bool&, C *&self) {
-    		// 将所有对C::Get的调用都无条件转移到对象b身上
+    		// forward all the calls to b
     		self = &b;
     	});
     	
@@ -80,65 +84,65 @@ Usage
     }
     
     
-传递给宏的可以是任意求值为函数指针的表达式, 因此如果需要追踪有多个重载版本的函数的某一重载版本, 
-只需传递`static_cast<func_point_type>(&func_name)`即可, 这个技巧还可以用来处理那些在编译期只知道类型, 地址在运行期才能获取的函数
+It doesn't matter whether the argument passed to the `TRACER_TRACE` macro is just a variable or a complex expression, as long as it evaluates to a function pointer. That means if you want to trace a certain function with a set of overloaded functions, you can just convert it to the signature you want, like `static_cast<func_point_type>(&func_name)`. It also very useful when you try to trace a function you only got its signature at compile-time and you don't know its address until run-time, such as functions in a COM component. 
     
 - - -
 
 ###Recorders
 
-`recorder`是用来记录`tracer`调用情况的类.
+Some helper classes to record calling information of a traced function.
 
 ####CallCountRecorder
 
-记录调用次数. 
+Record how many times a function is called. 
 
-可以使用`CallCountRecorder<decltype(tracer)> recorder(tracer)` 或者 `auto recorder = RecordCallCount(tracer)`创建, 
-它有两个公开方法:
+You can use `CallCountRecorder<decltype(tracer)> recorder(tracer)` or `auto recorder = RecordCallCount(tracer)` to create one.
 
-- `bool HasBeenCalled()` : 返回一个`bool`值表示原始函数是否被调用过.
-- `std::size_t CallCount()` : 返回原始函数被调用的次数.
+It has two public methods:
+
+- `bool HasBeenCalled()` : Returns a `bool` value indicates whether this function is called at least once.
+- `std::size_t CallCount()` : Returns the exact times.
  
 ####ArgRecorder
 
-记录传递给原始函数的所有参数
+Record all the arguments passed.
 
-可以使用`ArgRecorder<decltype(tracer)> recorder(tracer)` 或者 `auto recorder = RecordArgs(tracer)`创建, 它有一个公开方法:
+You can use `ArgRecorder<decltype(tracer)> recorder(tracer)` or `auto recorder = RecordArgs(tracer)` to create one.
 
-- `nth-param-type Arg<I>(n)` : 返回开始记录后第`n`次调用时的第`I`个参数. 
+It has one public method:
+
+- `nth-param-type Arg<I>(n)` : Returns the `I`th argument in the `n`th call. 
 
 ####RetValRecorder
 
-记录函数的返回值
+Record the return value.
 
-可以使用`RetValRecorder<decltype(tracer)> recorder(tracer)` 或者 `auto recorder = RecordRetVal(tracer)`创建, 
-它有一个公开方法:
+`RetValRecorder<decltype(tracer)> recorder(tracer)` or `auto recorder = RecordRetVal(tracer)`
 
-- `ret-val-type RetVal(n)` : 返回开始记录后第`n`次调用时的返回值
+- `ret-val-type RetVal(n)` : Returns the return value of the `n`th call.
 
 ####CallStackRecorder
 
-记录调用栈
+Record the call stack
 
-可以使用`CallStackRecorder<decltype(tracer)> recorder(tracer)` 或者 `auto recorder = RecordCallStack(tracer)`创建, 
-它有一个公开方法 :
+`CallStackRecorder<decltype(tracer)> recorder(tracer)` or `auto recorder = RecordCallStack(tracer)`
 
-- `CallStack GetCallStack(n)` : 返回开始记录后第`n`次调用时的调用栈.
+- `CallStack GetCallStack(n)` : Returns the call stack of the `n`th call.
  
-    `CallStack`对象有两个公开方法 : 
+    `CallStack` has two public methods : 
 
-    - `vector<CallStackEntry> Entries()` : 返回整个调用栈记录, `Entries()[0]`是原始函数的调用者, `Entries()[1]`是原始函数调用者的调用者, 依此类推
+    - `vector<CallStackEntry> Entries()` : Returns all the records, `Entries()[0]` is the direct caller of the original function, `Entries()[1]` is the caller's caller and so on.
     
-        `CallStackEntry`对象有4个公开方法:
+        `CallStackEntry` has four public methods:
         
-        - `File()` : 返回函数所在的文件名称
-        - `Line()` : 返回函数在文件中的行号
-        - `FuncName()` : 返回函数名
-        - `FuncAddr()` : 返回函数地址
+        - `File()` : Returns the name of the file.
+        - `Line()` : Returns the line number
+        - `FuncName()` : The name of the function
+        - `FuncAddr()` : The address of the function
         
-    - `bool IsCalledBy(f)` : `f`可以是字符串形式的函数名或者是函数指针, 如果在调用栈中找到匹配项则返回`true`, 否则返回`false`.
+    - `bool IsCalledBy(f)` : Returns a `bool` value indicates whether the function `f` appears in the recorded call stack. `f` could be a function name as a string or a function pointer
 
-示例:
+Example:
 
     struct C {
     	void Foo() {}
@@ -155,31 +159,30 @@ Usage
     
     	RunFoo();
     	
-    	// 输出第一次调用中各个调用者的信息
+    	// print the information of the direct caller
     	for (auto itr : fc.GetCallStack(0).Entries())
     		std::cout << itr.File() << " " << itr.Line() << " " << itr.FuncName() << std::endl;
-    		
-    	// 检查第一次调用时调用栈中是否有名为"RunFoo"的调用者
+
+        // check caller by name
     	assert(true == fc.GetCallStack(0).IsCalledBy("RunFoo"));
     	
     	void(*f)();
     	f = [] () { RunFoo(); };
     	f();
-    	// 通过比较函数地址检查第二次调用时是否有调用者f
+    	// or by function pointer
     	assert(true == fc.GetCallStack(1).IsCalledBy(f));
     }
 
 - - -
 
-###Mixin Tracer
+###Mixin
 
-使用`TRACER_TRACE_WITH`可以把 tracer 和 recorder 的功能混合到一起. 
+The macro `TRACER_TRACE_WITH` could mix the functions of tracer and recorder. It expects two arguments, a function pointer just like the one you would pass into `TRACER_TRACE`, and a list of recorder in the form of `(RecorderType1)(RecorderType2)`. 
 
-这个宏接受两个参数, 第一个参数是函数名, 第二个宏是要混合的 recorder 列表, 是`(recorder1)(recorder2)`形式的. 
-比如要记录`C::Foo`的调用次数和调用栈, 可以这样写
+To record how many times the function `C::Foo` is called as well as its call stacks, you write:
 
     TRACER_TRACE_WITH(C::Foo, (tracer::CallCountRecorder)(tracer::CallStackRecorder)) foo;
     
-`foo`继承了这两个 recorder 的接口, 所以你可以用`foo.Before().connect()`插入调用前的回调, 也可以用`foo.HasBeenCalled()`判断`C::Foo`是否被调用过, 还可以用`foo.GetCallStack()`来获取调用栈.
+Then, `foo` will inherit all the public methods of `CallCountRecorder` and `CallStackRecorder`. That means you can use `foo.Before().connect()` to insert a callback; use `foo.HasBeenCalled()` check whether it is called and `foo.GetCallStack()` to see the call stacks.
 
-除了内置的 recorder 以外, 只要是用`Recorder<T>::Recorder(T&)`形式构造的自定义 recorder 也可以用`TRACER_TRACE_WITH`混合.
+As you may expect, you can also mix your own recorder into a tracer as long as it has a constructor with the signature of `Recorder<TracerType>::Recorder(TracerType&)`
